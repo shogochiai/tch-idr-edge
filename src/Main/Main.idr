@@ -218,6 +218,120 @@ testNNPrimitives = do
 
   putStrLn "=== NN Primitives Complete ==="
 
+||| Test Tier 5: Data Bridge (fromListInt64, fromListDouble)
+testDataBridge : IO ()
+testDataBridge = do
+  putStrLn "\n=== Tier 5: Data Bridge Test ==="
+
+  -- fromListInt64
+  a <- fromListInt64 [1, 2, 3, 4, 5]
+  putStrLn "fromListInt64 [1, 2, 3, 4, 5]:"
+  a' <- printT a
+  (d, a'') <- dim a'
+  putStrLn $ "dim = " ++ show d ++ " (expected 1)"
+  (s, a''') <- size a'' 0
+  putStrLn $ "size(0) = " ++ show s ++ " (expected 5)"
+  free a'''
+
+  -- fromListDouble
+  b <- fromListDouble [1.5, 2.5, 3.5]
+  putStrLn "fromListDouble [1.5, 2.5, 3.5]:"
+  b' <- printT b
+  free b'
+
+  putStrLn "=== Data Bridge Complete ==="
+
+||| Test Tier 5: Reduction Operations (mean, sum)
+testReductions : IO ()
+testReductions = do
+  putStrLn "\n=== Tier 5: Reduction Operations Test ==="
+
+  -- Create 2x3 matrix of ones
+  a <- ones2d 2 3
+  putStrLn "a = ones(2, 3):"
+  a' <- printT a
+
+  -- Duplicate for multiple tests
+  (a1, a2) <- dup a'
+
+  -- Mean along dim 0
+  m0 <- mean a1 0
+  putStrLn "mean(a, dim=0) (should be [1, 1, 1]):"
+  m0' <- printT m0
+  free m0'
+
+  -- Sum along dim 1
+  s1 <- sum a2 1
+  putStrLn "sum(a, dim=1) (should be [3, 3]):"
+  s1' <- printT s1
+  free s1'
+
+  putStrLn "=== Reduction Operations Complete ==="
+
+||| Test Tier 5: Scalar Operations (divScalar, mulScalar)
+testScalarOps : IO ()
+testScalarOps = do
+  putStrLn "\n=== Tier 5: Scalar Operations Test ==="
+
+  -- Create tensor [2, 4, 6]
+  a <- fromListDouble [2.0, 4.0, 6.0]
+  putStrLn "a = [2.0, 4.0, 6.0]:"
+  a' <- printT a
+
+  -- Duplicate for multiple tests
+  (a1, a2) <- dup a'
+
+  -- Divide by 2
+  b <- divScalar a1 2.0
+  putStrLn "divScalar(a, 2.0) (should be [1, 2, 3]):"
+  b' <- printT b
+  free b'
+
+  -- Multiply by 0.5
+  c <- mulScalar a2 0.5
+  putStrLn "mulScalar(a, 0.5) (should be [1, 2, 3]):"
+  c' <- printT c
+  free c'
+
+  putStrLn "=== Scalar Operations Complete ==="
+
+||| Test STPM integration scenario
+testStpmScenario : IO ()
+testStpmScenario = do
+  putStrLn "\n=== STPM Integration Scenario Test ==="
+
+  -- Simulate token indices from tokenizer
+  let tokenIds = [101, 2023, 2003, 1037, 3231, 102] -- [CLS] this is a test [SEP]
+  indices <- fromListInt64 tokenIds
+  putStrLn "Token indices (simulated):"
+  indices' <- printT indices
+
+  -- Simulate embedding lookup result: 6 tokens x 4 hidden dim
+  embeddings <- randn2d 6 4
+  putStrLn "Embeddings shape 6x4:"
+  embeddings' <- printT embeddings
+
+  -- Sequence pooling via mean over dim 0
+  pooled <- mean embeddings' 0
+  putStrLn "Pooled (mean over sequence, should be 1x4 or just 4):"
+  pooled' <- printT pooled
+
+  -- Attention scaling: divide by sqrt(d) where d=4
+  let sqrtD = 2.0  -- sqrt(4) = 2
+  scaled <- divScalar pooled' sqrtD
+  putStrLn "Scaled by 1/sqrt(4):"
+  scaled' <- printT scaled
+
+  -- Extract final score
+  (score, scaled'') <- item scaled'
+  putStrLn $ "Final score (first element): " ++ show score
+
+  -- Cleanup
+  free indices'
+  free scaled''
+
+  putStrLn "=== STPM Integration Complete ==="
+
 main : IO ()
 main = do
   testLinearTensor
@@ -229,3 +343,7 @@ main = do
   testQueries
   testCombination
   testNNPrimitives
+  testDataBridge
+  testReductions
+  testScalarOps
+  testStpmScenario

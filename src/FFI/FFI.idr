@@ -187,6 +187,42 @@ prim__dropout : AnyPtr -> TensorPtr -> Double -> Int -> PrimIO ()
 %foreign "C:idris_gelu,libtorch_shim"
 prim__gelu : AnyPtr -> TensorPtr -> PrimIO ()
 
+-- ============================================================
+-- Tier 5: Data Bridge (prim bindings)
+-- ============================================================
+
+%foreign "C:idris_from_array_int64,libtorch_shim"
+prim__fromArrayInt64 : AnyPtr -> AnyPtr -> Bits64 -> PrimIO ()
+
+%foreign "C:idris_from_array_double,libtorch_shim"
+prim__fromArrayDouble : AnyPtr -> AnyPtr -> Bits64 -> PrimIO ()
+
+%foreign "C:idris_write_int64,libtorch_shim"
+prim__writeInt64 : AnyPtr -> Bits64 -> Bits64 -> PrimIO ()
+
+%foreign "C:idris_write_double,libtorch_shim"
+prim__writeDouble : AnyPtr -> Bits64 -> Double -> PrimIO ()
+
+-- ============================================================
+-- Tier 5: Reduction Operations (prim bindings)
+-- ============================================================
+
+%foreign "C:idris_mean_dim,libtorch_shim"
+prim__meanDim : AnyPtr -> TensorPtr -> Bits64 -> Int -> PrimIO ()
+
+%foreign "C:idris_sum_dim,libtorch_shim"
+prim__sumDim : AnyPtr -> TensorPtr -> Bits64 -> Int -> PrimIO ()
+
+-- ============================================================
+-- Tier 5: Scalar Operations (prim bindings)
+-- ============================================================
+
+%foreign "C:idris_div_scalar,libtorch_shim"
+prim__divScalar : AnyPtr -> TensorPtr -> Double -> PrimIO ()
+
+%foreign "C:idris_mul_scalar,libtorch_shim"
+prim__mulScalar : AnyPtr -> TensorPtr -> Double -> PrimIO ()
+
 -- Wrapped IO functions (still unsafe, but IO-typed)
 export
 getLastErr : IO (Maybe String)
@@ -613,6 +649,107 @@ tensorGelu : TensorPtr -> IO TensorPtr
 tensorGelu t = do
   out <- allocOutPtr
   primIO (prim__gelu out t)
+  result <- readOutPtr out
+  freeOutPtr out
+  pure result
+
+-- ============================================================
+-- Tier 5: Data Bridge (wrapped)
+-- ============================================================
+
+-- Buffer allocation for List marshalling
+%foreign "C:calloc,libc 6"
+prim__calloc : Bits64 -> Bits64 -> PrimIO AnyPtr
+
+||| Allocate zeroed buffer
+export
+allocBuffer : Bits64 -> Bits64 -> IO AnyPtr
+allocBuffer count size = primIO (prim__calloc count size)
+
+||| Create tensor from Int64 list
+export
+tensorFromListInt64 : List Bits64 -> IO TensorPtr
+tensorFromListInt64 xs = do
+  let len = cast {to=Bits64} (length xs)
+  buf <- allocBuffer len 8  -- 8 bytes per Int64
+  writeLoop buf 0 xs
+  out <- allocOutPtr
+  primIO (prim__fromArrayInt64 out buf len)
+  result <- readOutPtr out
+  freeOutPtr out
+  primIO (prim__freePtr buf)
+  pure result
+  where
+    writeLoop : AnyPtr -> Bits64 -> List Bits64 -> IO ()
+    writeLoop _ _ [] = pure ()
+    writeLoop buf idx (v :: vs) = do
+      primIO (prim__writeInt64 buf idx v)
+      writeLoop buf (idx + 1) vs
+
+||| Create tensor from Double list
+export
+tensorFromListDouble : List Double -> IO TensorPtr
+tensorFromListDouble xs = do
+  let len = cast {to=Bits64} (length xs)
+  buf <- allocBuffer len 8  -- 8 bytes per Double
+  writeLoop buf 0 xs
+  out <- allocOutPtr
+  primIO (prim__fromArrayDouble out buf len)
+  result <- readOutPtr out
+  freeOutPtr out
+  primIO (prim__freePtr buf)
+  pure result
+  where
+    writeLoop : AnyPtr -> Bits64 -> List Double -> IO ()
+    writeLoop _ _ [] = pure ()
+    writeLoop buf idx (v :: vs) = do
+      primIO (prim__writeDouble buf idx v)
+      writeLoop buf (idx + 1) vs
+
+-- ============================================================
+-- Tier 5: Reduction Operations (wrapped)
+-- ============================================================
+
+||| Mean along dimension
+export
+tensorMeanDim : TensorPtr -> Bits64 -> IO TensorPtr
+tensorMeanDim t dim = do
+  out <- allocOutPtr
+  primIO (prim__meanDim out t dim 0)  -- keepdim=0
+  result <- readOutPtr out
+  freeOutPtr out
+  pure result
+
+||| Sum along dimension
+export
+tensorSumDim : TensorPtr -> Bits64 -> IO TensorPtr
+tensorSumDim t dim = do
+  out <- allocOutPtr
+  primIO (prim__sumDim out t dim 0)  -- keepdim=0
+  result <- readOutPtr out
+  freeOutPtr out
+  pure result
+
+-- ============================================================
+-- Tier 5: Scalar Operations (wrapped)
+-- ============================================================
+
+||| Divide tensor by scalar
+export
+tensorDivScalar : TensorPtr -> Double -> IO TensorPtr
+tensorDivScalar t val = do
+  out <- allocOutPtr
+  primIO (prim__divScalar out t val)
+  result <- readOutPtr out
+  freeOutPtr out
+  pure result
+
+||| Multiply tensor by scalar
+export
+tensorMulScalar : TensorPtr -> Double -> IO TensorPtr
+tensorMulScalar t val = do
+  out <- allocOutPtr
+  primIO (prim__mulScalar out t val)
   result <- readOutPtr out
   freeOutPtr out
   pure result

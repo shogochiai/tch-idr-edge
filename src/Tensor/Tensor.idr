@@ -318,3 +318,63 @@ dup (MkTensor ptr) = do
 export
 free : (1 t : Tensor) -> IO ()
 free (MkTensor ptr) = freeTensor ptr
+
+-- ============================================================
+-- Tier 5: Data Bridge (Linear)
+-- ============================================================
+
+||| Create tensor from List of Int64 values
+||| Returns: Linear tensor that MUST be freed
+export
+fromListInt64 : List Bits64 -> IO Tensor
+fromListInt64 xs = do
+  ptr <- tensorFromListInt64 xs
+  pure (MkTensor ptr)
+
+||| Create tensor from List of Double values
+||| Returns: Linear tensor that MUST be freed
+export
+fromListDouble : List Double -> IO Tensor
+fromListDouble xs = do
+  ptr <- tensorFromListDouble xs
+  pure (MkTensor ptr)
+
+-- ============================================================
+-- Tier 5: Reduction Operations (Linear)
+-- ============================================================
+
+||| Mean along dimension
+||| Linear: Consumes input, produces new tensor
+export
+mean : (1 t : Tensor) -> Bits64 -> IO Tensor
+mean (MkTensor ptr) dim = do
+  result <- tensorMeanDim ptr dim
+  pure (MkTensor result)
+
+||| Sum along dimension
+||| Linear: Consumes input, produces new tensor
+export
+sum : (1 t : Tensor) -> Bits64 -> IO Tensor
+sum (MkTensor ptr) dim = do
+  result <- tensorSumDim ptr dim
+  pure (MkTensor result)
+
+-- ============================================================
+-- Tier 5: Scalar Operations (Linear)
+-- ============================================================
+
+||| Divide tensor by scalar value
+||| Linear: Consumes input, produces new tensor
+export
+divScalar : (1 t : Tensor) -> Double -> IO Tensor
+divScalar (MkTensor ptr) val = do
+  result <- tensorDivScalar ptr val
+  pure (MkTensor result)
+
+||| Multiply tensor by scalar value
+||| Linear: Consumes input, produces new tensor
+export
+mulScalar : (1 t : Tensor) -> Double -> IO Tensor
+mulScalar (MkTensor ptr) val = do
+  result <- tensorMulScalar ptr val
+  pure (MkTensor result)

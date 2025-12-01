@@ -242,4 +242,66 @@ double idris_item_double(void *t) {
     return val;
 }
 
+// ============================================================
+// Buffer writing helpers for List marshalling
+// ============================================================
+
+void idris_write_int64(int64_t *buf, int64_t idx, int64_t val) {
+    buf[idx] = val;
+}
+
+void idris_write_double(double *buf, int64_t idx, double val) {
+    buf[idx] = val;
+}
+
+// ============================================================
+// Tier 5: Data Bridge - List to Tensor conversion
+// ============================================================
+
+// REQ-T5-CRE-001: Create tensor from Int64 array
+void idris_from_array_int64(void **out, int64_t *data, int64_t len) {
+    int64_t dims[] = {len};
+    *out = at_tensor_of_data(data, dims, 1, sizeof(int64_t), 4);  // dtype=4 (Int64)
+}
+
+// REQ-T5-CRE-002: Create tensor from Double array
+void idris_from_array_double(void **out, double *data, int64_t len) {
+    int64_t dims[] = {len};
+    *out = at_tensor_of_data(data, dims, 1, sizeof(double), 7);  // dtype=7 (Float64)
+}
+
+// ============================================================
+// Tier 5: Reduction Operations
+// ============================================================
+
+// REQ-T5-RED-001: Mean along dimension
+void idris_mean_dim(void **out, void *t, int64_t dim, int keepdim) {
+    int64_t dims[] = {dim};
+    atg_mean_dim((tensor*)out, (tensor)t, dims, 1, keepdim, -1);  // dtype=-1 = preserve
+}
+
+// REQ-T5-RED-002: Sum along dimension
+void idris_sum_dim(void **out, void *t, int64_t dim, int keepdim) {
+    int64_t dims[] = {dim};
+    atg_sum_dim_intlist((tensor*)out, (tensor)t, dims, 1, keepdim, -1);  // dtype=-1 = preserve
+}
+
+// ============================================================
+// Tier 5: Scalar Operations
+// ============================================================
+
+// REQ-T5-SCA-001: Divide by scalar
+void idris_div_scalar(void **out, void *t, double val) {
+    scalar s = ats_float(val);
+    atg_div_scalar((tensor*)out, (tensor)t, s);
+    ats_free(s);
+}
+
+// REQ-T5-SCA-002: Multiply by scalar
+void idris_mul_scalar(void **out, void *t, double val) {
+    scalar s = ats_float(val);
+    atg_mul_scalar((tensor*)out, (tensor)t, s);
+    ats_free(s);
+}
+
 } // extern "C"
