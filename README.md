@@ -12,7 +12,30 @@
 
 Run audit: `DYLD_LIBRARY_PATH=".:$(brew --prefix libtorch)/lib" lazy-idris audit .`
 
-This project ports the functionality of [tch-rs](https://github.com/LaurentMazare/tch-rs) to Idris 2, replacing Rust's affine types (implicit `Drop`) with Idris 2's **Linear Types**. This ensures that all resource management—especially tensor deallocation—is explicit, verifiable, and free from "invisible" compiler actions that plague autonomous software evolution.
+This project ports a **minimal subset** of [tch-rs](https://github.com/LaurentMazare/tch-rs) to Idris 2, replacing Rust's affine types (implicit `Drop`) with Idris 2's **Linear Types**. This ensures that all resource management—especially tensor deallocation—is explicit, verifiable, and free from "invisible" compiler actions that plague autonomous software evolution.
+
+## Limitations (vs tch-rs)
+
+**tch-idr is NOT a full port of tch-rs.** It implements only ~30 operations needed for lazy-idris STPM inference:
+
+| Feature | tch-rs | tch-idr |
+|---------|--------|---------|
+| Tensor operations | ~2000+ | ~30 |
+| Autograd | ✅ | ❌ |
+| Model loading (.pt) | ✅ | ❌ |
+| GPU/CUDA support | ✅ | ❌ |
+| Optimizers | ✅ | ❌ |
+| Full NN modules | ✅ | ❌ (minimal primitives only) |
+
+**Supported operations:**
+- Creation: `zeros`, `ones`, `randn`, `fromListInt64`, `fromListDouble`
+- Arithmetic: `add`, `mul`, `matmul`, `divScalar`, `mulScalar`
+- Shape: `transpose`, `reshape`, `view`, `cat`, `stack`
+- NN primitives: `embedding`, `layerNorm`, `softmax`, `relu`, `gelu`, `dropout`
+- Reduction: `mean`, `sum`
+- Query: `dim`, `size`, `item`
+
+If you need full LibTorch functionality, use tch-rs directly.
 
 ## 1\. Architectural Overview
 
