@@ -1,0 +1,5 @@
+Testing get_and_reset_last_err binding...
+  getLastErr called successfully
+  No error present (expected)
+  get_and_reset_last_err binding verified
+PASS: Error retrieval binding works correctly

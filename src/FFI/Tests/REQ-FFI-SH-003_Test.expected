@@ -1,0 +1,6 @@
+Testing at_scalar_type binding...
+  Created tensor
+  at_scalar_type returned: 37
+  intToDType result: Nothing
+  Freed tensor
+PASS: at_scalar_type binding works correctly

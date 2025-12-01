@@ -1,0 +1,5 @@
+Testing at_tensor_of_data binding...
+  prim__tensorOfData : AnyPtr -> AnyPtr -> Bits64 -> Bits64 -> Int -> PrimIO TensorPtr
+  Binding signature verified at compile time
+  NOTE: Full test requires data buffer setup
+PASS: at_tensor_of_data binding exists

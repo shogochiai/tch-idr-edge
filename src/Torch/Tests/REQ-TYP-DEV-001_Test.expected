@@ -1,0 +1,5 @@
+Testing Device type definition...
+  CPU device created: True
+  CUDA 0 device created: True
+  CUDA 1 device created: True
+PASS: Device type correctly defined with CPU and CUDA constructors

@@ -1,0 +1,8 @@
+Testing deviceToInt conversion...
+  deviceToInt CPU = -1
+  Expected: -1, Got: -1 -> True
+  deviceToInt (CUDA 0) = 0
+  Expected: 0, Got: 0 -> True
+  deviceToInt (CUDA 2) = 2
+  Expected: 2, Got: 2 -> True
+PASS: deviceToInt correctly converts Device to FFI integers

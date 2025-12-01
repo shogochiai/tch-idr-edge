@@ -1,0 +1,7 @@
+Testing linear chaining...
+  Created tensor
+  isDefined returned: False
+  Tensor preserved through operation
+  dim returned: 1
+  Freed final tensor
+PASS: Operations preserve tensor linearly

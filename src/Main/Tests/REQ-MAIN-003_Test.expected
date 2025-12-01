@@ -1,0 +1,9 @@
+Testing free all allocated tensors...
+  Allocated t1
+  Allocated t2
+  Allocated t3
+  Freed t1
+  Freed t2
+  Freed t3
+  All 3 tensors allocated and freed
+PASS: All allocated tensors freed

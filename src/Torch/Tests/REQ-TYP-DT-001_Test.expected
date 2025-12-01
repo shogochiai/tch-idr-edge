@@ -1,0 +1,10 @@
+Testing DType enumeration...
+  TFloat32: defined
+  TFloat64: defined
+  TInt32: defined
+  TInt64: defined
+  TInt16: defined
+  TInt8: defined
+  TUInt8: defined
+  TBool: defined
+PASS: All DType constructors available

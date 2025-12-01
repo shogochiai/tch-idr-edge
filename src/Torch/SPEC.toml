@@ -1,0 +1,38 @@
+# Torch SPEC.toml - Common Type Definitions
+
+[definitions]
+module_torch = "src/Torch"
+
+[[requirement_area]]
+name = "Scalar Types"
+description = "Tensor element type definitions matching LibTorch dtypes"
+
+[[requirement_area.sub_feature]]
+name = "DType Enumeration"
+requirements = [
+  "- [REQ-TYP-DT-001] ${module_torch} SHALL define DType enum matching torch ScalarType (Float, Double, Int, Long, etc.)",
+  "- [REQ-TYP-DT-002] ${module_torch} SHALL provide dtypeToInt conversion for FFI calls",
+  "- [REQ-TYP-DT-003] ${module_torch} SHALL provide intToDType conversion for FFI results"
+]
+
+[[requirement_area]]
+name = "Device Types"
+description = "Computation device specification"
+
+[[requirement_area.sub_feature]]
+name = "Device Enumeration"
+requirements = [
+  "- [REQ-TYP-DEV-001] ${module_torch} SHALL define Device type (CPU, CUDA with device index)",
+  "- [REQ-TYP-DEV-002] ${module_torch} SHALL provide deviceToInt conversion for FFI calls"
+]
+
+[[requirement_area]]
+name = "Shape Types"
+description = "Tensor dimension specifications"
+
+[[requirement_area.sub_feature]]
+name = "Shape Representation"
+requirements = [
+  "- [REQ-TYP-SH-001] ${module_torch} SHALL define Shape as List Int64 for tensor dimensions",
+  "- [REQ-TYP-SH-002] ${module_torch} SHALL provide helper functions for shape manipulation"
+]

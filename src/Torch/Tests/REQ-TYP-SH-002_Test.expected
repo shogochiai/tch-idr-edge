@@ -1,0 +1,10 @@
+Testing Shape helper functions...
+  elementSize TFloat32 = 4
+  Expected: 4, Got: 4 -> True
+  elementSize TFloat64 = 8
+  Expected: 8, Got: 8 -> True
+  elementSize TInt8 = 1
+  Expected: 1, Got: 1 -> True
+  length shape [2,3,4] = 3
+  reverse shape [2,3,4] = [4, 3, 2]
+PASS: Shape helpers work correctly

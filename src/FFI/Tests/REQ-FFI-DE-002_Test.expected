@@ -1,0 +1,7 @@
+Testing raw pointer access...
+  Created tensor, got TensorPtr (AnyPtr)
+  TensorPtr : Type
+  TensorPtr = AnyPtr
+  Pointer is null: False
+  Freed via raw pointer
+PASS: Raw pointer access exposed correctly

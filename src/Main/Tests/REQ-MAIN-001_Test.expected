@@ -1,0 +1,7 @@
+Testing linear tensor usage pattern...
+  Pattern: create -> use -> free
+  1. Created tensor
+  2. Used tensor (isDefined: False)
+  3. Freed tensor
+  Linear pattern: exactly-once usage enforced
+PASS: Linear tensor usage pattern demonstrated

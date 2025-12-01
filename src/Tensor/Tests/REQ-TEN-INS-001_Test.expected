@@ -1,0 +1,7 @@
+Testing shape inspection requirement...
+  Required signature: shape : (1 t : Tensor) -> IO (Shape, 1 t : Tensor)
+  Created tensor
+  dim returns dimensionality: 1
+  Full shape requires per-dimension size query
+  Tensor freed
+PASS: Shape inspection pattern specified

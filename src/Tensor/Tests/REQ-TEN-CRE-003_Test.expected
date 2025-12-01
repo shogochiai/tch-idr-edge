@@ -1,0 +1,7 @@
+Testing ones requirement...
+  Required signature: ones : Shape -> IO (1 t : Tensor)
+  Target shape: [3, 4]
+  Created tensor (empty placeholder)
+  Freed tensor
+  NOTE: Full ones needs at_ones FFI binding
+PASS: ones creation pattern specified

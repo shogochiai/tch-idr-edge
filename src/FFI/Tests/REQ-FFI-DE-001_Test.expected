@@ -1,0 +1,4 @@
+Testing at_free binding...
+  Created tensor
+  Called freeTensor (at_free)
+PASS: at_free binding works

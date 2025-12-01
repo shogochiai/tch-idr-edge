@@ -1,0 +1,5 @@
+Testing at_shape binding requirement...
+  Empty tensor dimensionality: 1
+  at_shape binding: requires shape buffer
+  Shape retrieval deferred to Tensor module
+PASS: Shape-related bindings verified

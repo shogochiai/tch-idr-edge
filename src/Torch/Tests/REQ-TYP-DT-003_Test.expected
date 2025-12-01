@@ -1,0 +1,5 @@
+Testing intToDType conversion...
+  intToDType 6 = Just TFloat32 (expected Just TFloat32)
+  intToDType 7 = Just TFloat64 (expected Just TFloat64)
+  intToDType 99 = Nothing (expected Nothing)
+PASS: intToDType returns correct values

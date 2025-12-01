@@ -1,0 +1,5 @@
+Testing explicit free requirement...
+  Allocated tensor
+  Linear type enforces exactly-once usage
+  Called free explicitly (no implicit Drop)
+PASS: Explicit free required

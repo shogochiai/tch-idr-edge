@@ -1,0 +1,12 @@
+package tchidr
+
+sourcedir = "src"
+executable = "tch-idr-test"
+main = Main.Main
+
+depends = base
+
+modules = Main.Main
+        , Torch.Torch
+        , FFI.FFI
+        , Tensor.Tensor

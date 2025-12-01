@@ -1,0 +1,6 @@
+Testing at_data_ptr binding...
+  Created tensor
+  at_data_ptr called successfully
+  Data pointer is null (empty tensor): True
+  Freed tensor
+PASS: at_data_ptr binding works correctly

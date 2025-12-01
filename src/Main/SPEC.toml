@@ -1,0 +1,16 @@
+# Main SPEC.toml - Entry Point and Integration Tests
+
+[definitions]
+module_main = "src/Main"
+
+[[requirement_area]]
+name = "Entry Point"
+description = "Main module for tch-idr executable"
+
+[[requirement_area.sub_feature]]
+name = "Integration"
+requirements = [
+  "- [REQ-MAIN-001] ${module_main} SHALL demonstrate linear tensor usage pattern",
+  "- [REQ-MAIN-002] ${module_main} SHALL chain tensor operations correctly",
+  "- [REQ-MAIN-003] ${module_main} SHALL free all allocated tensors"
+]

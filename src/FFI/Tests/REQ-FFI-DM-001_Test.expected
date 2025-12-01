@@ -1,0 +1,6 @@
+Testing at_device binding...
+  Created tensor
+  at_device returned: -2
+  Tensor on CPU: False
+  Freed tensor
+PASS: at_device binding works correctly

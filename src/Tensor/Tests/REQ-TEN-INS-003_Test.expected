@@ -1,0 +1,8 @@
+Testing print inspection...
+  printT : (1 t : Tensor) -> IO Tensor
+  Created tensor
+  Calling printT:
+[ Tensor (undefined) ]
+  printT returned tensor for continued use
+  Tensor freed
+PASS: print preserves tensor linearly

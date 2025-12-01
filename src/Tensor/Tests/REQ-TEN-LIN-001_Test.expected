@@ -1,0 +1,5 @@
+Testing opaque Tensor type...
+  Created Tensor via empty
+  Tensor is opaque (MkTensor constructor not exported)
+  Freed tensor
+PASS: Tensor type wraps TensorPtr

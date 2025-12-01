@@ -1,0 +1,59 @@
+# Tensor SPEC.toml - Linear Type Tensor Wrapper
+
+[definitions]
+module_tensor = "src/Tensor"
+
+# Policy: No implicit resource management
+linear_policy = "exactly-once"
+
+[[requirement_area]]
+name = "Linear Resource Safety"
+description = "Core linear type invariants for tensor lifecycle"
+
+[[requirement_area.sub_feature]]
+name = "Exactly-Once Usage"
+requirements = [
+  "- [REQ-TEN-LIN-001] ${module_tensor} SHALL wrap TensorPtr in opaque Tensor type",
+  "- [REQ-TEN-LIN-002] ${module_tensor} SHALL enforce (1 t : Tensor) linear annotation on all tensor arguments",
+  "- [REQ-TEN-LIN-003] ${module_tensor} SHALL require explicit free call - NO implicit Drop"
+]
+
+[[requirement_area.sub_feature]]
+name = "Ownership Transfer"
+requirements = [
+  "- [REQ-TEN-OWN-001] ${module_tensor} SHALL return (1 _ : Tensor) for operations preserving tensor",
+  "- [REQ-TEN-OWN-002] ${module_tensor} SHALL consume tensor linearly on free operation",
+  "- [REQ-TEN-OWN-003] ${module_tensor} SHALL chain operations returning both original and result tensors"
+]
+
+[[requirement_area]]
+name = "Tensor Creation"
+description = "Safe tensor allocation with linear guarantees"
+
+[[requirement_area.sub_feature]]
+name = "From Data"
+requirements = [
+  "- [REQ-TEN-CRE-001] ${module_tensor} SHALL provide makeTensor : List Double -> Shape -> IO (1 t : Tensor)",
+  "- [REQ-TEN-CRE-002] ${module_tensor} SHALL provide zeros : Shape -> IO (1 t : Tensor)",
+  "- [REQ-TEN-CRE-003] ${module_tensor} SHALL provide ones : Shape -> IO (1 t : Tensor)"
+]
+
+[[requirement_area]]
+name = "Tensor Operations"
+description = "Linear operations preserving resource safety"
+
+[[requirement_area.sub_feature]]
+name = "Inspection"
+requirements = [
+  "- [REQ-TEN-INS-001] ${module_tensor} SHALL provide shape : (1 t : Tensor) -> IO (Shape, 1 t : Tensor)",
+  "- [REQ-TEN-INS-002] ${module_tensor} SHALL provide dtype : (1 t : Tensor) -> IO (DType, 1 t : Tensor)",
+  "- [REQ-TEN-INS-003] ${module_tensor} SHALL provide print : (1 t : Tensor) -> IO (1 t : Tensor)"
+]
+
+[[requirement_area.sub_feature]]
+name = "Destruction"
+requirements = [
+  "- [REQ-TEN-DES-001] ${module_tensor} SHALL provide free : (1 t : Tensor) -> IO ()",
+  "- [REQ-TEN-DES-002] ${module_tensor} SHALL guarantee no tensor leak if free is called"
+]
+

@@ -1,0 +1,10 @@
+Testing operation chaining...
+  Created t0
+  t0 -> isDefined -> (b1=False, t1)
+  t1 -> dim -> (d=1, t2)
+[ Tensor (undefined) ]
+  t2 -> printT -> t3
+  t3 -> isDefined -> (b2=False, t4)
+  t4 -> free
+  Chain: t0 -> t1 -> t2 -> t3 -> t4 -> freed
+PASS: Operations chained correctly

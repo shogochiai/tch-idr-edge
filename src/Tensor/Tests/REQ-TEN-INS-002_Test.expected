@@ -1,0 +1,7 @@
+Testing dtype inspection requirement...
+  Required signature: dtype : (1 t : Tensor) -> IO (DType, 1 t : Tensor)
+  Created tensor
+  dim (proxy for dtype) returned: 1
+  Pattern: inspection returns (result, tensor)
+  Tensor freed
+PASS: dtype inspection pattern demonstrated

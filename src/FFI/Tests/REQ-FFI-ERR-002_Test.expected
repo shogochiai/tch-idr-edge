@@ -1,0 +1,5 @@
+Testing checkError helper pattern...
+  Tensor creation succeeded (no error)
+  Tensor freed
+  checkError pattern demonstrated
+PASS: checkError helper pattern works correctly

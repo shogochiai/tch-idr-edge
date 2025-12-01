@@ -1,0 +1,9 @@
+Testing chained operations with tensor threading...
+  Created tensor t0
+  isDefined t0 -> (b1=False, t1)
+  dim t1 -> (d=1, t2)
+[ Tensor (undefined) ]
+  printT t2 -> t3
+  isDefined t3 -> (b2=False, t4)
+  free t4 - chain complete
+PASS: Operations correctly chain tensor ownership

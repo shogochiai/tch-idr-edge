@@ -1,0 +1,6 @@
+Testing free function...
+  Created tensor
+  free : (1 t : Tensor) -> IO ()
+  Linear consumption: tensor cannot be used after free
+  free called successfully
+PASS: free consumes tensor linearly

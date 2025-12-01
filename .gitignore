@@ -1,0 +1,8 @@
+build/
+lazy-idris/
+*.dylib
+*.so
+*.o
+Tensor
+Tensor_Test.idr
+_Test.idr

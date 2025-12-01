@@ -1,0 +1,6 @@
+Testing free consumes tensor linearly...
+  Created tensor
+  free : (1 t : Tensor) -> IO ()
+  After free, tensor is consumed - no further use possible
+  Tensor freed and consumed
+PASS: free consumes tensor linearly

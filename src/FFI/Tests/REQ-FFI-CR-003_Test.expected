@@ -1,0 +1,6 @@
+Testing at_shallow_clone binding...
+  Created source tensor
+  prim__shallowClone : TensorPtr -> PrimIO TensorPtr
+  Binding signature verified at compile time
+  Freed source tensor
+PASS: at_shallow_clone binding exists

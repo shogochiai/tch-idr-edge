@@ -1,0 +1,9 @@
+Testing no tensor leak guarantee...
+  Created tensor t1
+  Freed t1
+  Created tensor t2
+  Freed t2
+  Created tensor t3
+  Freed t3
+  All tensors freed - no leaks
+PASS: No tensor leak when free is called

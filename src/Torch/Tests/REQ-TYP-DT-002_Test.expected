@@ -1,0 +1,7 @@
+Testing dtypeToInt conversion...
+  dtypeToInt TFloat32 = 6 (expected 6)
+  dtypeToInt TFloat64 = 7 (expected 7)
+  dtypeToInt TInt32 = 3 (expected 3)
+  dtypeToInt TInt64 = 4 (expected 4)
+  dtypeToInt TBool = 11 (expected 11)
+PASS: dtypeToInt returns correct values

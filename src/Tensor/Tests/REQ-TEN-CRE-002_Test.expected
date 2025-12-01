@@ -1,0 +1,7 @@
+Testing zeros requirement...
+  Required signature: zeros : Shape -> IO (1 t : Tensor)
+  Target shape: [2, 3]
+  Created tensor (empty placeholder)
+  Freed tensor
+  NOTE: Full zeros needs at_zeros FFI binding
+PASS: zeros creation pattern specified

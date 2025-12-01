@@ -1,0 +1,11 @@
+Testing linear annotation enforcement...
+  All tensor-consuming functions use (1 t : Tensor)
+  printT : (1 t : Tensor) -> IO Tensor
+  isDefined : (1 t : Tensor) -> IO (Bool, Tensor)
+  dim : (1 t : Tensor) -> IO (Nat, Tensor)
+  free : (1 t : Tensor) -> IO ()
+  Created tensor
+[ Tensor (undefined) ]
+  Used tensor linearly in printT
+  Freed tensor (exactly once)
+PASS: Linear annotation enforced on all tensor arguments
