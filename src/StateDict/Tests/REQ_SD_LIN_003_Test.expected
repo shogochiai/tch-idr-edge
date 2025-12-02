@@ -1,0 +1,4 @@
+Testing explicit freeStateDict requirement...
+  NO implicit Drop - must call freeStateDict explicitly
+  Linear types enforce this at compile time
+PASS: Explicit free required

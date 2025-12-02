@@ -10,9 +10,9 @@ description = "Tensor element type definitions matching LibTorch dtypes"
 [[spec_area.sub_spec]]
 name = "DType Enumeration"
 specs = [
-  "- [REQ-TYP-DT-001] ${module_torch} SHALL define DType enum matching torch ScalarType (Float, Double, Int, Long, etc.)",
-  "- [REQ-TYP-DT-002] ${module_torch} SHALL provide dtypeToInt conversion for FFI calls",
-  "- [REQ-TYP-DT-003] ${module_torch} SHALL provide intToDType conversion for FFI results"
+  "- [REQ_TYP_DT_001] ${module_torch} SHALL define DType enum matching torch ScalarType (Float, Double, Int, Long, etc.)",
+  "- [REQ_TYP_DT_002] ${module_torch} SHALL provide dtypeToInt conversion for FFI calls",
+  "- [REQ_TYP_DT_003] ${module_torch} SHALL provide intToDType conversion for FFI results"
 ]
 
 [[spec_area]]
@@ -22,8 +22,8 @@ description = "Computation device specification"
 [[spec_area.sub_spec]]
 name = "Device Enumeration"
 specs = [
-  "- [REQ-TYP-DEV-001] ${module_torch} SHALL define Device type (CPU, CUDA with device index)",
-  "- [REQ-TYP-DEV-002] ${module_torch} SHALL provide deviceToInt conversion for FFI calls"
+  "- [REQ_TYP_DEV_001] ${module_torch} SHALL define Device type (CPU, CUDA with device index)",
+  "- [REQ_TYP_DEV_002] ${module_torch} SHALL provide deviceToInt conversion for FFI calls"
 ]
 
 [[spec_area]]
@@ -33,8 +33,8 @@ description = "Tensor dimension specifications"
 [[spec_area.sub_spec]]
 name = "Shape Representation"
 specs = [
-  "- [REQ-TYP-SH-001] ${module_torch} SHALL define Shape as List Int64 for tensor dimensions",
-  "- [REQ-TYP-SH-002] ${module_torch} SHALL provide helper functions for shape manipulation"
+  "- [REQ_TYP_SH_001] ${module_torch} SHALL define Shape as List Int64 for tensor dimensions",
+  "- [REQ_TYP_SH_002] ${module_torch} SHALL provide helper functions for shape manipulation"
 ]
 
 # ============================================================

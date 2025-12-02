@@ -1,0 +1,5 @@
+Testing shallow clone ownership...
+  Extracted tensors are shallow clones
+  Caller owns the returned Tensor
+  StateDict retains original tensor
+PASS: Shallow clones with caller ownership

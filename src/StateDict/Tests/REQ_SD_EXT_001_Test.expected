@@ -1,0 +1,4 @@
+Testing getTensor function...
+  getTensor : (1 sd : StateDict) -> String -> IO (Maybe Tensor, StateDict)
+  Returns tensor by name, preserves StateDict linearly
+PASS: getTensor signature correct

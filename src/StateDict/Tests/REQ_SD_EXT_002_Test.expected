@@ -1,0 +1,4 @@
+Testing tensorAt function...
+  tensorAt : (1 sd : StateDict) -> Nat -> IO (Maybe Tensor, StateDict)
+  Returns tensor by index, preserves StateDict linearly
+PASS: tensorAt signature correct

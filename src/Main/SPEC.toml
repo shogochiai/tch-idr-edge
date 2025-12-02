@@ -10,9 +10,9 @@ description = "Main module for tch-idr executable"
 [[spec_area.sub_spec]]
 name = "Integration"
 specs = [
-  "- [REQ-MAIN-001] ${module_main} SHALL demonstrate linear tensor usage pattern",
-  "- [REQ-MAIN-002] ${module_main} SHALL chain tensor operations correctly",
-  "- [REQ-MAIN-003] ${module_main} SHALL free all allocated tensors"
+  "- [REQ_MAIN_001] ${module_main} SHALL demonstrate linear tensor usage pattern",
+  "- [REQ_MAIN_002] ${module_main} SHALL chain tensor operations correctly",
+  "- [REQ_MAIN_003] ${module_main} SHALL free all allocated tensors"
 ]
 
 # ============================================================

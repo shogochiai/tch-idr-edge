@@ -10,16 +10,16 @@ description = "Raw FFI bindings for tensor creation and destruction"
 [[spec_area.sub_spec]]
 name = "Creation"
 specs = [
-  "- [REQ-FFI-CR-001] ${module_ffi} SHALL bind at_new_tensor for empty tensor creation",
-  "- [REQ-FFI-CR-002] ${module_ffi} SHALL bind at_tensor_of_data for tensor creation from data",
-  "- [REQ-FFI-CR-003] ${module_ffi} SHALL bind at_shallow_clone for tensor cloning"
+  "- [REQ_FFI_CR_001] ${module_ffi} SHALL bind at_new_tensor for empty tensor creation",
+  "- [REQ_FFI_CR_002] ${module_ffi} SHALL bind at_tensor_of_data for tensor creation from data",
+  "- [REQ_FFI_CR_003] ${module_ffi} SHALL bind at_shallow_clone for tensor cloning"
 ]
 
 [[spec_area.sub_spec]]
 id = "Destruction"
 specs = [
-  "- [REQ-FFI-DE-001] ${module_ffi} SHALL bind at_free for tensor deallocation",
-  "- [REQ-FFI-DE-002] ${module_ffi} SHALL expose raw pointer access for explicit memory management"
+  "- [REQ_FFI_DE_001] ${module_ffi} SHALL bind at_free for tensor deallocation",
+  "- [REQ_FFI_DE_002] ${module_ffi} SHALL expose raw pointer access for explicit memory management"
 ]
 
 [[spec_area]]
@@ -29,16 +29,16 @@ description = "Raw FFI bindings for tensor inspection"
 [[spec_area.sub_spec]]
 name = "Shape and Type"
 specs = [
-  "- [REQ-FFI-SH-001] ${module_ffi} SHALL bind at_dim for dimension count",
-  "- [REQ-FFI-SH-002] ${module_ffi} SHALL bind at_shape for dimension values",
-  "- [REQ-FFI-SH-003] ${module_ffi} SHALL bind at_scalar_type for dtype query"
+  "- [REQ_FFI_SH_001] ${module_ffi} SHALL bind at_dim for dimension count",
+  "- [REQ_FFI_SH_002] ${module_ffi} SHALL bind at_shape for dimension values",
+  "- [REQ_FFI_SH_003] ${module_ffi} SHALL bind at_scalar_type for dtype query"
 ]
 
 [[spec_area.sub_spec]]
 id = "Device and Memory"
 specs = [
-  "- [REQ-FFI-DM-001] ${module_ffi} SHALL bind at_device for device query",
-  "- [REQ-FFI-DM-002] ${module_ffi} SHALL bind at_data_ptr for raw data access"
+  "- [REQ_FFI_DM_001] ${module_ffi} SHALL bind at_device for device query",
+  "- [REQ_FFI_DM_002] ${module_ffi} SHALL bind at_data_ptr for raw data access"
 ]
 
 [[spec_area]]
@@ -48,14 +48,14 @@ description = "Raw FFI bindings for tensor display and serialization"
 [[spec_area.sub_spec]]
 name = "Display"
 specs = [
-  "- [REQ-FFI-IO-001] ${module_ffi} SHALL bind at_print for tensor printing"
+  "- [REQ_FFI_IO_001] ${module_ffi} SHALL bind at_print for tensor printing"
 ]
 
 [[spec_area.sub_spec]]
 id = "Error Handling"
 specs = [
-  "- [REQ-FFI-ERR-001] ${module_ffi} SHALL bind get_and_reset_last_err for error retrieval",
-  "- [REQ-FFI-ERR-002] ${module_ffi} SHALL provide checkError helper for consistent error handling"
+  "- [REQ_FFI_ERR_001] ${module_ffi} SHALL bind get_and_reset_last_err for error retrieval",
+  "- [REQ_FFI_ERR_002] ${module_ffi} SHALL provide checkError helper for consistent error handling"
 ]
 
 # ============================================================

@@ -1,0 +1,4 @@
+Testing loadCheckpoint function...
+  loadCheckpoint : String -> IO StateDict
+  Returns linear StateDict from checkpoint file path
+PASS: loadCheckpoint signature correct

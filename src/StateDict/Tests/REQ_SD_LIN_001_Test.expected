@@ -1,0 +1,3 @@
+Testing opaque StateDict type...
+  StateDict is opaque (MkStateDict constructor not exported)
+PASS: StateDict type wraps StateDictPtr

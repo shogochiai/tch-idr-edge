@@ -1,0 +1,4 @@
+Testing error checking after load...
+  hasError : (1 sd : StateDict) -> IO (Bool, StateDict)
+  Must check for errors after loadCheckpoint
+PASS: Error checking available

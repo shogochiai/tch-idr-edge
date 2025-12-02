@@ -1,0 +1,4 @@
+Testing linear annotation on StateDict...
+  All StateDict operations must use (1 sd : StateDict)
+  Compile-time verification via type signatures
+PASS: Linear annotations enforced
