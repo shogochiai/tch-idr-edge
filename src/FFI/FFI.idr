@@ -753,3 +753,99 @@ tensorMulScalar t val = do
   result <- readOutPtr out
   freeOutPtr out
   pure result
+
+-- ============================================================
+-- Tier 6: StateDict Loading (prim bindings)
+-- ============================================================
+
+-- Raw state dict pointer type (opaque)
+public export
+StateDictPtr : Type
+StateDictPtr = AnyPtr
+
+%foreign "C:idris_load_state_dict,libtorch_shim"
+prim__loadStateDict : String -> PrimIO StateDictPtr
+
+%foreign "C:idris_state_dict_size,libtorch_shim"
+prim__stateDictSize : StateDictPtr -> PrimIO Bits64
+
+%foreign "C:idris_state_dict_error,libtorch_shim"
+prim__stateDictError : StateDictPtr -> PrimIO AnyPtr
+
+%foreign "C:idris_state_dict_name_at,libtorch_shim"
+prim__stateDictNameAt : StateDictPtr -> Bits64 -> PrimIO AnyPtr
+
+%foreign "C:idris_state_dict_tensor_at,libtorch_shim"
+prim__stateDictTensorAt : AnyPtr -> StateDictPtr -> Bits64 -> PrimIO ()
+
+%foreign "C:idris_state_dict_tensor_by_name,libtorch_shim"
+prim__stateDictTensorByName : AnyPtr -> StateDictPtr -> String -> PrimIO ()
+
+%foreign "C:idris_state_dict_free,libtorch_shim"
+prim__stateDictFree : StateDictPtr -> PrimIO ()
+
+-- ============================================================
+-- Tier 6: StateDict Loading (wrapped)
+-- ============================================================
+
+||| Load state dict from checkpoint file
+||| Returns handle to loaded state dict (may have error, check with stateDictError)
+export
+loadStateDictRaw : String -> IO StateDictPtr
+loadStateDictRaw path = primIO (prim__loadStateDict path)
+
+||| Get number of tensors in state dict
+export
+stateDictSize : StateDictPtr -> IO Bits64
+stateDictSize sd = primIO (prim__stateDictSize sd)
+
+-- Helper to cast C string pointer to Idris String
+-- This is a simplified version - proper implementation would use strlen + memcpy
+%foreign "C:strlen,libc 6"
+prim__strlen : AnyPtr -> PrimIO Bits64
+
+prim__castPtr : AnyPtr -> String
+prim__castPtr ptr = believe_me ptr
+
+||| Check for error message (returns Nothing if no error)
+export
+stateDictError : StateDictPtr -> IO (Maybe String)
+stateDictError sd = do
+  errPtr <- primIO (prim__stateDictError sd)
+  if prim__nullAnyPtr errPtr /= 0
+     then pure Nothing
+     else pure (Just (prim__castPtr errPtr))
+
+||| Get tensor name at index (returns Nothing if index out of bounds)
+export
+stateDictNameAt : StateDictPtr -> Bits64 -> IO (Maybe String)
+stateDictNameAt sd idx = do
+  namePtr <- primIO (prim__stateDictNameAt sd idx)
+  if prim__nullAnyPtr namePtr /= 0
+     then pure Nothing
+     else pure (Just $ prim__castPtr namePtr)
+
+||| Get tensor at index (shallow clone, caller owns result)
+export
+stateDictTensorAt : StateDictPtr -> Bits64 -> IO TensorPtr
+stateDictTensorAt sd idx = do
+  out <- allocOutPtr
+  primIO (prim__stateDictTensorAt out sd idx)
+  result <- readOutPtr out
+  freeOutPtr out
+  pure result
+
+||| Get tensor by name (shallow clone, caller owns result)
+export
+stateDictTensorByName : StateDictPtr -> String -> IO TensorPtr
+stateDictTensorByName sd name = do
+  out <- allocOutPtr
+  primIO (prim__stateDictTensorByName out sd name)
+  result <- readOutPtr out
+  freeOutPtr out
+  pure result
+
+||| Free state dict handle and all contained tensors
+export
+freeStateDictRaw : StateDictPtr -> IO ()
+freeStateDictRaw sd = primIO (prim__stateDictFree sd)

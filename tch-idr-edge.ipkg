@@ -10,3 +10,4 @@ modules = Main.Main
         , Torch.Torch
         , FFI.FFI
         , Tensor.Tensor
+        , StateDict.StateDict

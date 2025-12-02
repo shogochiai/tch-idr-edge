@@ -10,7 +10,7 @@ import Torch.Torch
 
 ||| Opaque tensor type with linear constraint
 ||| This is the core type ensuring no implicit Drop
-export
+public export
 data Tensor : Type where
   MkTensor : TensorPtr -> Tensor
 

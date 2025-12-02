@@ -30,15 +30,15 @@ $(TARGET_SHIM): torch-sys/torch_api.cpp torch-sys/torch_api_generated.cpp torch-
 	$(CXX) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS)
 
 build: shim
-	$(IDRIS) --build tch-idr.ipkg
+	$(IDRIS) --build tch-idr-edge.ipkg
 
 OMP_PATH ?= /opt/homebrew/Cellar/llvm/20.1.7/lib
 
 test: build
 ifeq ($(UNAME_S),Darwin)
-	DYLD_LIBRARY_PATH=$(LIBTORCH_PATH)/lib:$(OMP_PATH):. ./build/exec/tch-idr-test
+	DYLD_LIBRARY_PATH=$(LIBTORCH_PATH)/lib:$(OMP_PATH):. ./build/exec/tch-idr-edge-test
 else
-	LD_LIBRARY_PATH=$(LIBTORCH_PATH)/lib:. ./build/exec/tch-idr-test
+	LD_LIBRARY_PATH=$(LIBTORCH_PATH)/lib:. ./build/exec/tch-idr-edge-test
 endif
 
 clean:
@@ -47,10 +47,10 @@ clean:
 
 # Development helpers
 check:
-	$(IDRIS) --check tch-idr.ipkg
+	$(IDRIS) --check tch-idr-edge.ipkg
 
 repl:
-	$(IDRIS) --repl tch-idr.ipkg
+	$(IDRIS) --repl tch-idr-edge.ipkg
 
 # Copy shim sources from cargo cache (one-time setup)
 extract-shim:

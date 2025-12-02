@@ -5,6 +5,7 @@ module Main.Main
 import Torch.Torch
 import FFI.FFI
 import Tensor.Tensor
+import StateDict.StateDict
 
 ||| Example: Create tensor, inspect, and free
 ||| This demonstrates the linear usage pattern:
@@ -332,8 +333,50 @@ testStpmScenario = do
 
   putStrLn "=== STPM Integration Complete ==="
 
+||| Test Tier 6: StateDict Loading (Checkpoint Support)
+covering
+testCheckpointLoading : IO ()
+testCheckpointLoading = do
+  putStrLn "\n=== Tier 6: Checkpoint Loading Test ==="
+
+  -- Load the STPM checkpoint (absolute path for reliability)
+  let checkpointPath = "/Users/bob/code/eventhorizon-and-lazysolidity/eventhorizon/crates/stpm/models/checkpoint_epoch_11500_dataset_10k_context_512_cpu_state_dict.pt"
+  putStrLn $ "Loading checkpoint: " ++ checkpointPath
+
+  sd <- loadCheckpoint checkpointPath
+
+  -- Check for errors
+  (hasErr, sd') <- hasError sd
+  case hasErr of
+    True => do putStrLn "ERROR: Failed to load checkpoint (check stderr for details)"
+               freeStateDict sd'
+    False => do
+      -- Get tensor count
+      (n, sd'') <- sdSize sd'
+      putStrLn $ "Loaded " ++ show n ++ " tensors"
+
+      -- Get embedding weight tensor as example
+      putStrLn "Extracting 'model_state_dict.embed.weight'..."
+      (mEmb, sd''') <- getTensor sd'' "model_state_dict.embed.weight"
+      case mEmb of
+        Nothing => do
+          putStrLn "  Tensor not found"
+          freeStateDict sd'''
+        Just emb => do
+          (d, emb') <- dim emb
+          putStrLn $ "  dim = " ++ show d
+          (s0, emb'') <- Tensor.size emb' 0
+          putStrLn $ "  size(0) = " ++ show s0 ++ " (expected 259 = vocab size)"
+          (s1, emb''') <- Tensor.size emb'' 1
+          putStrLn $ "  size(1) = " ++ show s1 ++ " (expected 512 = hidden dim)"
+          free emb'''
+          freeStateDict sd'''
+
+      putStrLn "=== Checkpoint Loading Complete ==="
+
 main : IO ()
 main = do
+  -- Basic tests
   testLinearTensor
   testDebug
   testArithmetic
@@ -347,3 +390,6 @@ main = do
   testReductions
   testScalarOps
   testStpmScenario
+  -- Tier 6: Checkpoint loading
+  testCheckpointLoading
+  putStrLn "All tests complete!"
