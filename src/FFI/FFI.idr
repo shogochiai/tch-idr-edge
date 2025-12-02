@@ -149,8 +149,9 @@ prim__randn3d : AnyPtr -> Bits64 -> Bits64 -> Bits64 -> Int -> Int -> PrimIO ()
 %foreign "C:idris_size_dim,libtorch_shim"
 prim__sizeDim : TensorPtr -> Bits64 -> PrimIO Bits64
 
-%foreign "C:idris_item_double,libtorch_shim"
-prim__itemDouble : TensorPtr -> PrimIO Double
+-- Note: at_double_value_at_indexes handles type conversion properly
+%foreign "C:at_double_value_at_indexes,libtorch_shim"
+prim__itemDouble : TensorPtr -> Ptr Int64 -> Int -> PrimIO Double
 
 -- ============================================================
 -- Tier 4: Tensor Combination (prim bindings)
@@ -553,7 +554,14 @@ tensorSizeDim t dim = primIO (prim__sizeDim t dim)
 ||| Extract scalar value as Double
 export
 tensorItemDouble : TensorPtr -> IO Double
-tensorItemDouble t = primIO (prim__itemDouble t)
+tensorItemDouble t = do
+  -- Allocate single int64 for index 0
+  buf <- primIO (prim__malloc 8)  -- 8 bytes for one int64
+  primIO (prim__writeInt64 buf 0 0)  -- write index 0 at position 0
+  let ptrBuf : Ptr Int64 = believe_me buf
+  result <- primIO (prim__itemDouble t ptrBuf 1)
+  primIO (prim__freePtr buf)
+  pure result
 
 -- ============================================================
 -- Tier 4: Tensor Combination (wrapped)

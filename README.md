@@ -18,7 +18,7 @@ This project ports a **minimal subset** of [tch-rs](https://github.com/LaurentMa
 
 ## Limitations (vs tch-rs)
 
-**tch-idr-edge is NOT a full port of tch-rs.** It is a minimal, CPU-only inference library implementing only ~30 operations needed for lazy-idris STPM inference:
+**tch-idr-edge is NOT a full port of tch-rs.** It is a minimal, CPU-only inference library implementing only ~40 operations needed for lazy-idris STPM inference:
 
 ### Design Constraints
 - **CPU-only**: No GPU/CUDA support. Optimized for edge deployment where GPU is unavailable.
@@ -27,20 +27,26 @@ This project ports a **minimal subset** of [tch-rs](https://github.com/LaurentMa
 
 | Feature | tch-rs | tch-idr-edge |
 |---------|--------|---------|
-| Tensor operations | ~2000+ | ~30 |
+| Tensor operations | ~2000+ | ~40 |
 | Autograd | ✅ | ❌ |
-| Model loading (.pt) | ✅ | ❌ |
+| Model loading (.pt) | ✅ | ✅ (StateDict only) |
 | GPU/CUDA support | ✅ | ❌ |
 | Optimizers | ✅ | ❌ |
 | Full NN modules | ✅ | ❌ (minimal primitives only) |
 
-**Supported operations:**
-- Creation: `zeros`, `ones`, `randn`, `fromListInt64`, `fromListDouble`
-- Arithmetic: `add`, `mul`, `matmul`, `divScalar`, `mulScalar`
-- Shape: `transpose`, `reshape`, `view`, `cat`, `stack`
-- NN primitives: `embedding`, `layerNorm`, `softmax`, `relu`, `gelu`, `dropout`
-- Reduction: `mean`, `sum`
-- Query: `dim`, `size`, `item`
+**Supported operations (41 total):**
+
+| Category | Operations |
+|----------|------------|
+| **Creation** | `empty`, `zeros1d`, `zeros2d`, `ones1d`, `ones2d`, `randn1d`, `randn2d`, `randn3d`, `fromListInt64`, `fromListDouble` |
+| **Arithmetic** | `add`, `mul`, `matmul`, `divScalar`, `mulScalar` |
+| **Shape** | `transpose`, `reshape2d`, `reshape3d`, `reshape4d`, `view2d`, `view3d`, `view4d`, `cat2`, `stack2` |
+| **Slicing** | `narrow`, `split3` |
+| **NN primitives** | `embedding`, `layerNorm`, `softmax`, `relu`, `gelu`, `dropout` |
+| **Reduction** | `mean`, `sum` |
+| **Query** | `dim`, `size`, `item`, `isDefined`, `printT` |
+| **Memory** | `dup`, `free` |
+| **StateDict** | `loadStateDict`, `stateDictLen`, `stateDictKeyByIndex`, `stateDictTensorByName`, `freeStateDict` |
 
 If you need full LibTorch functionality, use tch-rs directly.
 

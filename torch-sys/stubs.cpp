@@ -240,9 +240,9 @@ void idris_gelu(void **out, void *t) {
 // REQ-T4-QRY-004: Extract scalar value (for 0-dim or 1-element tensors)
 double idris_item_double(void *t) {
     tensor tens = (tensor)t;
-    double val;
-    at_copy_data(tens, &val, 1, sizeof(double));
-    return val;
+    int64_t idx = 0;
+    // Use at_double_value_at_indexes for proper type conversion
+    return at_double_value_at_indexes(tens, &idx, 1);
 }
 
 // ============================================================
