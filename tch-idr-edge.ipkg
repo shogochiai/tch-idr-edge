@@ -1,7 +1,7 @@
-package tchidr
+package tchidr-edge
 
 sourcedir = "src"
-executable = "tch-idr-test"
+executable = "tch-idr-edge-test"
 main = Main.Main
 
 depends = base

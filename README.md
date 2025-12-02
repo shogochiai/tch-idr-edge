@@ -1,6 +1,8 @@
-# tch-idr by lazy-idris
+# tch-idr-edge by lazy-idris
 
-**Explicit Linear Type Bindings for LibTorch**
+**Explicit Linear Type Bindings for LibTorch (CPU-only, Inference-only)**
+
+> ⚠️ **Edge Deployment Focus**: This library is designed for CPU-only inference on edge devices. No GPU/CUDA support, no training capabilities.
 
 ## STI Parity Status
 
@@ -16,9 +18,14 @@ This project ports a **minimal subset** of [tch-rs](https://github.com/LaurentMa
 
 ## Limitations (vs tch-rs)
 
-**tch-idr is NOT a full port of tch-rs.** It implements only ~30 operations needed for lazy-idris STPM inference:
+**tch-idr-edge is NOT a full port of tch-rs.** It is a minimal, CPU-only inference library implementing only ~30 operations needed for lazy-idris STPM inference:
 
-| Feature | tch-rs | tch-idr |
+### Design Constraints
+- **CPU-only**: No GPU/CUDA support. Optimized for edge deployment where GPU is unavailable.
+- **Inference-only**: No autograd, no training. Forward pass only.
+- **Limited tensor operations**: Only operations required for STPM inference are implemented.
+
+| Feature | tch-rs | tch-idr-edge |
 |---------|--------|---------|
 | Tensor operations | ~2000+ | ~30 |
 | Autograd | ✅ | ❌ |
