@@ -16,7 +16,7 @@ specs = [
 ]
 
 [[spec_area.sub_spec]]
-name = "Destruction"
+id = "Destruction"
 specs = [
   "- [REQ-FFI-DE-001] ${module_ffi} SHALL bind at_free for tensor deallocation",
   "- [REQ-FFI-DE-002] ${module_ffi} SHALL expose raw pointer access for explicit memory management"
@@ -35,7 +35,7 @@ specs = [
 ]
 
 [[spec_area.sub_spec]]
-name = "Device and Memory"
+id = "Device and Memory"
 specs = [
   "- [REQ-FFI-DM-001] ${module_ffi} SHALL bind at_device for device query",
   "- [REQ-FFI-DM-002] ${module_ffi} SHALL bind at_data_ptr for raw data access"
@@ -52,8 +52,102 @@ specs = [
 ]
 
 [[spec_area.sub_spec]]
-name = "Error Handling"
+id = "Error Handling"
 specs = [
   "- [REQ-FFI-ERR-001] ${module_ffi} SHALL bind get_and_reset_last_err for error retrieval",
   "- [REQ-FFI-ERR-002] ${module_ffi} SHALL provide checkError helper for consistent error handling"
 ]
+
+# ============================================================
+# Type Specifications (SI Parity)
+# ============================================================
+
+[[type]]
+id = "TensorPtr"
+text = "Opaque raw tensor pointer type `TensorPtr` for FFI boundary"
+
+[[type]]
+id = "StateDictPtr"
+text = "Opaque state dict pointer type `StateDictPtr` for checkpoint loading"
+
+[[type]]
+id = "Memory Management Primitives"
+text = "Low-level memory allocation: `prim__malloc`, `prim__freePtr`, `prim__calloc`, `allocOutPtr`, `freeOutPtr`, `readOutPtr`, `allocBuffer`"
+
+[[type]]
+id = "Error Handling"
+text = "Error retrieval: `prim__getLastErr`, `getLastErr`"
+
+[[type]]
+id = "Tensor Lifecycle FFI"
+text = "Raw tensor creation/destruction: `prim__newTensor`, `prim__tensorOfData`, `prim__shallowClone`, `prim__free`, `newTensor`, `freeTensor`, `shallowClone`"
+
+[[type]]
+id = "Tensor Properties FFI"
+text = "Raw tensor inspection: `prim__dim`, `prim__scalarType`, `prim__device`, `prim__defined`, `prim__dataPtr`, `tensorDim`, `tensorDefined`, `tensorScalarType`, `tensorDevice`, `tensorDataPtr`"
+
+[[type]]
+id = "Tensor Display FFI"
+text = "Tensor printing: `prim__print`, `printTensor`"
+
+[[type]]
+id = "Arithmetic Operations FFI"
+text = "Element-wise and matrix ops: `prim__add`, `prim__mul`, `prim__matmul`, `prim__readOutPtr`, `tensorAdd`, `tensorMul`, `tensorMatmul`"
+
+[[type]]
+id = "Tensor Creation FFI"
+text = "Tensor factory functions: `prim__zeros1d`, `prim__ones1d`, `prim__zeros2d`, `prim__ones2d`, `tensorZeros1d`, `tensorOnes1d`, `tensorZeros2d`, `tensorOnes2d`"
+
+[[type]]
+id = "Random Tensor Creation FFI"
+text = "Random tensor generation: `prim__randn1d`, `prim__randn2d`, `prim__randn3d`, `tensorRandn1d`, `tensorRandn2d`, `tensorRandn3d`"
+
+[[type]]
+id = "Activation Operations FFI"
+text = "Activation functions: `prim__softmax`, `prim__relu`, `prim__gelu`, `tensorSoftmax`, `tensorRelu`, `tensorGelu`"
+
+[[type]]
+id = "Shape Operations FFI"
+text = "Tensor shape manipulation: `prim__transpose`, `prim__reshape1d`, `prim__reshape2d`, `prim__reshape3d`, `prim__reshape4d`, `prim__view1d`, `prim__view2d`, `prim__view3d`, `prim__view4d`, `tensorTranspose`, `tensorReshape1d`, `tensorReshape2d`, `tensorReshape3d`, `tensorReshape4d`, `tensorView1d`, `tensorView2d`, `tensorView3d`, `tensorView4d`"
+
+[[type]]
+id = "Shape Query FFI"
+text = "Tensor dimension queries: `prim__sizeDim`, `prim__itemDouble`, `tensorSizeDim`, `tensorItemDouble`"
+
+[[type]]
+id = "Tensor Combination FFI"
+text = "Concatenation and stacking: `prim__cat2`, `prim__cat3`, `prim__stack2`, `prim__stack3`, `tensorCat2`, `tensorCat3`, `tensorStack2`, `tensorStack3`"
+
+[[type]]
+id = "Neural Network Primitives FFI"
+text = "NN layer functions: `prim__layerNorm1d`, `prim__layerNorm2d`, `prim__embedding`, `prim__dropout`, `tensorLayerNorm1d`, `tensorLayerNorm2d`, `tensorEmbedding`, `tensorDropout`"
+
+[[type]]
+id = "Data Bridge FFI"
+text = "Array to tensor conversion: `prim__fromArrayInt64`, `prim__fromArrayDouble`, `prim__writeInt64`, `prim__writeDouble`, `tensorFromListInt64`, `tensorFromListDouble`, `writeLoop`"
+
+[[type]]
+id = "Reduction Operations FFI"
+text = "Dimensional reductions: `prim__meanDim`, `prim__sumDim`, `tensorMeanDim`, `tensorSumDim`"
+
+[[type]]
+id = "Scalar Operations FFI"
+text = "Scalar arithmetic: `prim__divScalar`, `prim__mulScalar`, `tensorDivScalar`, `tensorMulScalar`"
+
+[[type]]
+id = "StateDict FFI"
+text = "Checkpoint loading: `prim__loadStateDict`, `prim__stateDictSize`, `prim__stateDictError`, `prim__stateDictNameAt`, `prim__stateDictTensorAt`, `prim__stateDictTensorByName`, `prim__stateDictFree`, `loadStateDictRaw`, `stateDictSize`, `stateDictError`, `stateDictNameAt`, `stateDictTensorAt`, `stateDictTensorByName`, `freeStateDictRaw`"
+
+[[type]]
+id = "String Utilities FFI"
+text = "C string handling: `prim__strlen`, `prim__castPtr`"
+
+[[type]]
+id = "Tensor Slicing FFI"
+text = "Tensor narrowing: `prim__narrow`, `tensorNarrow`"
+
+[[type]]
+id = "Debug Utilities FFI"
+text = "Debug helpers: `prim__debugEcho`, `prim__debugOutptr`, `debugEcho`, `debugOutptr`"
+
+[[end]]

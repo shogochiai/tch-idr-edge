@@ -36,3 +36,33 @@ specs = [
   "- [REQ-TYP-SH-001] ${module_torch} SHALL define Shape as List Int64 for tensor dimensions",
   "- [REQ-TYP-SH-002] ${module_torch} SHALL provide helper functions for shape manipulation"
 ]
+
+# ============================================================
+# Type Specifications (SI Parity)
+# ============================================================
+
+[[type]]
+id = "DType"
+text = "`DType` tensor element type enumeration: TFloat32, TFloat64, TInt32, TInt64, TInt16, TInt8, TUInt8, TBool"
+
+[[type]]
+id = "dtypeToInt"
+text = "`dtypeToInt` converts DType to LibTorch scalar type integer for FFI calls"
+
+[[type]]
+id = "intToDType"
+text = "`intToDType` converts LibTorch scalar type integer to DType for FFI results"
+
+[[type]]
+id = "Device"
+text = "`Device` computation device specification: CPU or CUDA with device index"
+
+[[type]]
+id = "Shape"
+text = "`Shape` tensor dimensions as List Int type alias"
+
+[[type]]
+id = "elementSize"
+text = "`elementSize` byte size calculation per DType for memory allocation"
+
+[[end]]

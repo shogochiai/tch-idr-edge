@@ -1,0 +1,76 @@
+# StateDict SPEC.toml - Linear Type StateDict Wrapper
+
+[definitions]
+module_statedict = "src/StateDict"
+
+# Policy: No implicit resource management
+linear_policy = "exactly-once"
+
+[[spec_area]]
+name = "Linear Resource Safety"
+description = "Core linear type invariants for StateDict lifecycle"
+
+[[spec_area.sub_spec]]
+name = "Exactly-Once Usage"
+specs = [
+  "- [REQ-SD-LIN-001] ${module_statedict} SHALL wrap StateDictPtr in opaque StateDict type",
+  "- [REQ-SD-LIN-002] ${module_statedict} SHALL enforce (1 sd : StateDict) linear annotation on all arguments",
+  "- [REQ-SD-LIN-003] ${module_statedict} SHALL require explicit freeStateDict call - NO implicit Drop"
+]
+
+[[spec_area]]
+name = "Checkpoint Loading"
+description = "Safe checkpoint file loading with linear guarantees"
+
+[[spec_area.sub_spec]]
+name = "Loading"
+specs = [
+  "- [REQ-SD-LOAD-001] ${module_statedict} SHALL provide loadCheckpoint : String -> IO StateDict",
+  "- [REQ-SD-LOAD-002] ${module_statedict} SHALL check errors via hasError after loading"
+]
+
+[[spec_area]]
+name = "Tensor Extraction"
+description = "Linear-preserving tensor retrieval from state dict"
+
+[[spec_area.sub_spec]]
+name = "Extraction"
+specs = [
+  "- [REQ-SD-EXT-001] ${module_statedict} SHALL provide getTensor : (1 sd) -> String -> IO (Maybe Tensor, StateDict)",
+  "- [REQ-SD-EXT-002] ${module_statedict} SHALL provide tensorAt : (1 sd) -> Nat -> IO (Maybe Tensor, StateDict)",
+  "- [REQ-SD-EXT-003] ${module_statedict} SHALL return shallow clones owned by caller"
+]
+
+# ============================================================
+# Type Specifications (SI Parity)
+# ============================================================
+
+[[type]]
+id = "StateDict Type"
+text = "`StateDict` linear wrapper type with `MkStateDict` constructor"
+
+[[type]]
+id = "Checkpoint Loading"
+text = "File loading: `loadCheckpoint`"
+
+[[type]]
+id = "StateDict Destruction"
+text = "Resource cleanup: `freeStateDict`"
+
+[[type]]
+id = "Error Inspection"
+text = "Error checking: `hasError`, `getError`"
+
+[[type]]
+id = "StateDict Queries"
+text = "Size and content inspection: `sdSize`, `isEmpty`, `nameAt`"
+
+[[type]]
+id = "Tensor Extraction"
+text = "Individual tensor retrieval: `getTensor`, `tensorAt`"
+
+[[type]]
+id = "Batch Extraction"
+text = "Full extraction: `extractAll`, `extractLoop`"
+
+[[end]]

@@ -19,7 +19,7 @@ specs = [
 ]
 
 [[spec_area.sub_spec]]
-name = "Ownership Transfer"
+id = "Ownership Transfer"
 specs = [
   "- [REQ-TEN-OWN-001] ${module_tensor} SHALL return (1 _ : Tensor) for operations preserving tensor",
   "- [REQ-TEN-OWN-002] ${module_tensor} SHALL consume tensor linearly on free operation",
@@ -51,9 +51,67 @@ specs = [
 ]
 
 [[spec_area.sub_spec]]
-name = "Destruction"
+id = "Destruction"
 specs = [
   "- [REQ-TEN-DES-001] ${module_tensor} SHALL provide free : (1 t : Tensor) -> IO ()",
   "- [REQ-TEN-DES-002] ${module_tensor} SHALL guarantee no tensor leak if free is called"
 ]
 
+# ============================================================
+# Type Specifications (SI Parity)
+# ============================================================
+
+[[type]]
+id = "Tensor"
+text = "`Tensor` linear wrapper type with `MkTensor` constructor and `rawPtr` accessor"
+
+[[type]]
+id = "Tensor Creation"
+text = "Factory functions: `empty`, `zeros1d`, `ones1d`, `zeros2d`, `ones2d`, `randn1d`, `randn2d`, `randn3d`"
+
+[[type]]
+id = "Tensor Inspection"
+text = "Linear-preserving queries: `printT`, `isDefined`, `dim`, `size`, `item`"
+
+[[type]]
+id = "Tensor Arithmetic"
+text = "Element-wise and matrix operations: `add`, `mul`, `matmul`"
+
+[[type]]
+id = "Tensor Activations"
+text = "Activation functions: `softmax`, `relu`, `gelu`"
+
+[[type]]
+id = "Tensor Shape Operations"
+text = "Shape manipulation: `transpose`, `reshape2d`, `reshape3d`, `reshape4d`, `view2d`, `view3d`, `view4d`"
+
+[[type]]
+id = "Tensor Combination"
+text = "Concatenation and stacking: `cat2`, `stack2`"
+
+[[type]]
+id = "Neural Network Primitives"
+text = "NN layer operations: `layerNorm`, `embedding`, `dropout`"
+
+[[type]]
+id = "Tensor Ownership"
+text = "Linear ownership management: `dup`, `free`"
+
+[[type]]
+id = "Data Bridge"
+text = "List to tensor conversion: `fromListInt64`, `fromListDouble`"
+
+[[type]]
+id = "Reduction Operations"
+text = "Dimensional reductions: `mean`, `sum`"
+
+[[type]]
+id = "Scalar Operations"
+text = "Scalar arithmetic: `divScalar`, `mulScalar`"
+
+[[type]]
+id = "Tensor Slicing"
+text = "Tensor narrowing and splitting: `narrow`, `split3`"
+
+
+[[end]]
