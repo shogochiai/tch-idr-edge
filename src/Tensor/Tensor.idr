@@ -378,3 +378,35 @@ mulScalar : (1 t : Tensor) -> Double -> IO Tensor
 mulScalar (MkTensor ptr) val = do
   result <- tensorMulScalar ptr val
   pure (MkTensor result)
+
+-- ============================================================
+-- Tier 7: Tensor Slicing (Linear)
+-- ============================================================
+
+||| Narrow tensor along dimension
+||| Returns a view (shares underlying storage) with reduced size
+||| Linear: Consumes input, produces narrowed tensor
+||| @dim    Dimension to narrow along
+||| @start  Starting index
+||| @length Length of slice
+export
+narrow : (1 t : Tensor) -> Bits64 -> Bits64 -> Bits64 -> IO Tensor
+narrow (MkTensor ptr) dim start length = do
+  result <- tensorNarrow ptr dim start length
+  pure (MkTensor result)
+
+||| Split tensor into 3 equal parts along dimension 0
+||| Useful for splitting combined Q/K/V projection weights
+||| Linear: Consumes input, produces three tensors (all must be freed)
+||| @splitSize Size of each split (total size must be 3*splitSize)
+export
+split3 : (1 t : Tensor) -> Bits64 -> IO (Tensor, Tensor, Tensor)
+split3 (MkTensor ptr) splitSize = do
+  -- Create clones so we can narrow multiple times
+  ptr2 <- shallowClone ptr
+  ptr3 <- shallowClone ptr
+  -- Split: [0:splitSize], [splitSize:2*splitSize], [2*splitSize:3*splitSize]
+  t1 <- tensorNarrow ptr 0 0 splitSize
+  t2 <- tensorNarrow ptr2 0 splitSize splitSize
+  t3 <- tensorNarrow ptr3 0 (splitSize * 2) splitSize
+  pure (MkTensor t1, MkTensor t2, MkTensor t3)

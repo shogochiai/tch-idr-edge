@@ -849,3 +849,30 @@ stateDictTensorByName sd name = do
 export
 freeStateDictRaw : StateDictPtr -> IO ()
 freeStateDictRaw sd = primIO (prim__stateDictFree sd)
+
+-- ============================================================
+-- Tier 7: Tensor Slicing (prim bindings)
+-- ============================================================
+
+-- Use atg_narrow directly from libtorch (available in existing shim)
+%foreign "C:atg_narrow,libtorch_shim"
+prim__narrow : AnyPtr -> TensorPtr -> Bits64 -> Bits64 -> Bits64 -> PrimIO ()
+
+-- ============================================================
+-- Tier 7: Tensor Slicing (wrapped)
+-- ============================================================
+
+||| Narrow tensor along dimension
+||| Returns a view with reduced size along specified dimension
+||| @t      Input tensor
+||| @dim    Dimension to narrow
+||| @start  Starting index
+||| @length Length of the narrowed dimension
+export
+tensorNarrow : TensorPtr -> Bits64 -> Bits64 -> Bits64 -> IO TensorPtr
+tensorNarrow t dim start length = do
+  out <- allocOutPtr
+  primIO (prim__narrow out t dim start length)
+  result <- readOutPtr out
+  freeOutPtr out
+  pure result

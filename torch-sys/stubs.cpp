@@ -424,4 +424,15 @@ void idris_state_dict_free(void* handle) {
     delete sd;
 }
 
+// ============================================================
+// Tier 7: Tensor Slicing
+// ============================================================
+
+// REQ-T7-SLC-001: Narrow (slice along dimension)
+// Returns a view into the tensor with reduced size along specified dimension
+// t.narrow(dim, start, length) -> tensor view
+void idris_narrow(void **out, void *t, int64_t dim, int64_t start, int64_t length) {
+    atg_narrow((tensor*)out, (tensor)t, dim, start, length);
+}
+
 } // extern "C"
