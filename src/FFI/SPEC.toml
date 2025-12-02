@@ -3,57 +3,57 @@
 [definitions]
 module_ffi = "src/FFI"
 
-[[requirement_area]]
+[[spec_area]]
 name = "Tensor Lifecycle"
 description = "Raw FFI bindings for tensor creation and destruction"
 
-[[requirement_area.sub_feature]]
+[[spec_area.sub_spec]]
 name = "Creation"
-requirements = [
+specs = [
   "- [REQ-FFI-CR-001] ${module_ffi} SHALL bind at_new_tensor for empty tensor creation",
   "- [REQ-FFI-CR-002] ${module_ffi} SHALL bind at_tensor_of_data for tensor creation from data",
   "- [REQ-FFI-CR-003] ${module_ffi} SHALL bind at_shallow_clone for tensor cloning"
 ]
 
-[[requirement_area.sub_feature]]
+[[spec_area.sub_spec]]
 name = "Destruction"
-requirements = [
+specs = [
   "- [REQ-FFI-DE-001] ${module_ffi} SHALL bind at_free for tensor deallocation",
   "- [REQ-FFI-DE-002] ${module_ffi} SHALL expose raw pointer access for explicit memory management"
 ]
 
-[[requirement_area]]
+[[spec_area]]
 name = "Tensor Properties"
 description = "Raw FFI bindings for tensor inspection"
 
-[[requirement_area.sub_feature]]
+[[spec_area.sub_spec]]
 name = "Shape and Type"
-requirements = [
+specs = [
   "- [REQ-FFI-SH-001] ${module_ffi} SHALL bind at_dim for dimension count",
   "- [REQ-FFI-SH-002] ${module_ffi} SHALL bind at_shape for dimension values",
   "- [REQ-FFI-SH-003] ${module_ffi} SHALL bind at_scalar_type for dtype query"
 ]
 
-[[requirement_area.sub_feature]]
+[[spec_area.sub_spec]]
 name = "Device and Memory"
-requirements = [
+specs = [
   "- [REQ-FFI-DM-001] ${module_ffi} SHALL bind at_device for device query",
   "- [REQ-FFI-DM-002] ${module_ffi} SHALL bind at_data_ptr for raw data access"
 ]
 
-[[requirement_area]]
+[[spec_area]]
 name = "Tensor IO"
 description = "Raw FFI bindings for tensor display and serialization"
 
-[[requirement_area.sub_feature]]
+[[spec_area.sub_spec]]
 name = "Display"
-requirements = [
+specs = [
   "- [REQ-FFI-IO-001] ${module_ffi} SHALL bind at_print for tensor printing"
 ]
 
-[[requirement_area.sub_feature]]
+[[spec_area.sub_spec]]
 name = "Error Handling"
-requirements = [
+specs = [
   "- [REQ-FFI-ERR-001] ${module_ffi} SHALL bind get_and_reset_last_err for error retrieval",
   "- [REQ-FFI-ERR-002] ${module_ffi} SHALL provide checkError helper for consistent error handling"
 ]
