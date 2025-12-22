@@ -272,12 +272,24 @@ layerNorm (MkTensor ptr) normDim = do
   pure (MkTensor result)
 
 ||| Embedding lookup
-||| Linear: Consumes indices, returns (result, weight) - weight is preserved
+||| Linear: Consumes weight and indices, returns (result, weight_copy)
+||| Uses dupDeep to create independent copy (shallow clone shares data = double-free bug)
 export
 embedding : (1 weight : Tensor) -> (1 indices : Tensor) -> IO (Tensor, Tensor)
 embedding (MkTensor wptr) (MkTensor iptr) = do
   result <- tensorEmbedding wptr iptr
-  pure (MkTensor result, MkTensor wptr)
+  -- Create independent deep copy of weight for return
+  wptr2 <- deepClone wptr
+  pure (MkTensor result, MkTensor wptr2)
+
+||| Embedding lookup (borrow version)
+||| Weight is borrowed (not consumed), only result is returned
+||| Caller retains ownership of weight
+export
+embeddingBorrow : Tensor -> Tensor -> IO Tensor
+embeddingBorrow (MkTensor wptr) (MkTensor iptr) = do
+  result <- tensorEmbedding wptr iptr
+  pure (MkTensor result)
 
 ||| Dropout with probability p
 ||| Linear: Consumes input, produces new tensor
@@ -299,6 +311,16 @@ gelu (MkTensor ptr) = do
 -- Tensor Ownership (Linear)
 -- ============================================================
 
+||| Create a deep clone without consuming the source (borrow semantics)
+||| Source tensor is NOT consumed - caller retains ownership
+||| Returns a new independent tensor that MUST be freed
+||| Use this when you need a copy but don't want to consume the source
+export
+cloneBorrow : Tensor -> IO Tensor
+cloneBorrow (MkTensor ptr) = do
+  ptr2 <- deepClone ptr
+  pure (MkTensor ptr2)
+
 ||| Duplicate tensor - splits ownership into two
 ||| Both returned tensors MUST be freed separately
 ||| Uses shallow clone (shares underlying storage)
@@ -307,6 +329,17 @@ export
 dup : (1 t : Tensor) -> IO (Tensor, Tensor)
 dup (MkTensor ptr) = do
   ptr2 <- shallowClone ptr
+  pure (MkTensor ptr, MkTensor ptr2)
+
+||| Deep duplicate tensor - creates completely independent copy
+||| Both returned tensors MUST be freed separately
+||| Uses deep clone (no data sharing - safe for independent freeing)
+||| Linear: Consumes input, produces two outputs
+||| Use this when you need to free one copy while keeping the other
+export
+dupDeep : (1 t : Tensor) -> IO (Tensor, Tensor)
+dupDeep (MkTensor ptr) = do
+  ptr2 <- deepClone ptr
   pure (MkTensor ptr, MkTensor ptr2)
 
 -- ============================================================

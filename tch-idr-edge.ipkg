@@ -1,4 +1,4 @@
-package tchidr-edge
+package tch-idr-edge
 
 sourcedir = "src"
 executable = "tch-idr-edge-test"

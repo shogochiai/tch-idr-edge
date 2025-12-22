@@ -24,6 +24,9 @@ prim__tensorOfData : AnyPtr -> AnyPtr -> Bits64 -> Bits64 -> Int -> PrimIO Tenso
 %foreign "C:at_shallow_clone,libtorch_shim"
 prim__shallowClone : TensorPtr -> PrimIO TensorPtr
 
+%foreign "C:at_deep_clone,libtorch_shim"
+prim__deepClone : TensorPtr -> PrimIO TensorPtr
+
 %foreign "C:at_free,libtorch_shim"
 prim__free : TensorPtr -> PrimIO ()
 
@@ -270,6 +273,13 @@ tensorDataPtr ptr = primIO (prim__dataPtr ptr)
 export
 shallowClone : TensorPtr -> IO TensorPtr
 shallowClone ptr = primIO (prim__shallowClone ptr)
+
+||| Deep clone a tensor - creates completely independent copy
+||| The cloned tensor has its own storage (no data sharing)
+||| Freeing one tensor does not affect the other
+export
+deepClone : TensorPtr -> IO TensorPtr
+deepClone ptr = primIO (prim__deepClone ptr)
 
 -- ============================================================
 -- Memory allocation for out-parameters

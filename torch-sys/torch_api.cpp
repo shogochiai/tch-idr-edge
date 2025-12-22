@@ -107,9 +107,37 @@ void at_copy_data(tensor tensor, void *vs, size_t numel, size_t elt_size_in_byte
   )
 }
 
+// Clone counters for debugging
+static int64_t g_shallow_clone_count = 0;
+static int64_t g_deep_clone_count = 0;
+
 tensor at_shallow_clone(tensor t) {
-  PROTECT(return new torch::Tensor(*t);)
+  PROTECT(
+    g_shallow_clone_count++;
+    return new torch::Tensor(*t);
+  )
   return nullptr;
+}
+
+tensor at_deep_clone(tensor t) {
+  PROTECT(
+    g_deep_clone_count++;
+    return new torch::Tensor(t->clone());
+  )
+  return nullptr;
+}
+
+int64_t at_get_shallow_clone_count() {
+  return g_shallow_clone_count;
+}
+
+int64_t at_get_deep_clone_count() {
+  return g_deep_clone_count;
+}
+
+void at_reset_clone_counters() {
+  g_shallow_clone_count = 0;
+  g_deep_clone_count = 0;
 }
 
 void *at_data_ptr(tensor t) {
@@ -1110,10 +1138,8 @@ bool at_context_has_mps() {
 }
 
 bool at_context_has_ort() {
-  PROTECT (
-  return at::globalContext().hasORT();
-  )
-  return 0;
+  // hasORT() removed in newer libtorch versions
+  return false;
 }
 
 module atm_load(char *filename) {

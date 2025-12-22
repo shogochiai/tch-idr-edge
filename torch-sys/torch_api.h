@@ -35,6 +35,10 @@ tensor at_tensor_of_blob(void *data, int64_t *dims, size_t ndims, int64_t *strid
 tensor at_tensor_of_data(void *vs, int64_t *dims, size_t ndims, size_t element_size_in_bytes, int type);
 void at_copy_data(tensor tensor, void *vs, size_t numel, size_t element_size_in_bytes);
 tensor at_shallow_clone(tensor);
+tensor at_deep_clone(tensor);
+int64_t at_get_shallow_clone_count();
+int64_t at_get_deep_clone_count();
+void at_reset_clone_counters();
 
 void *at_data_ptr(tensor);
 int at_defined(tensor);

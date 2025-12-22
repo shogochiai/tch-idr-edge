@@ -374,6 +374,74 @@ testCheckpointLoading = do
 
       putStrLn "=== Checkpoint Loading Complete ==="
 
+||| Test dupDeep (deep clone)
+testDupDeep : IO ()
+testDupDeep = do
+  putStrLn "\n=== DupDeep (Deep Clone) Test ==="
+
+  -- Create a tensor
+  a <- ones1d 3
+  putStrLn "a = ones(3):"
+  a' <- printT a
+
+  -- Deep clone it
+  putStrLn "Deep cloning a..."
+  (b, c) <- dupDeep a'
+  putStrLn "b (first clone):"
+  b' <- printT b
+  putStrLn "c (second clone):"
+  c' <- printT c
+
+  -- Free b first
+  putStrLn "Freeing b..."
+  free b'
+
+  -- c should still be valid
+  putStrLn "c after freeing b (should still work):"
+  c'' <- printT c'
+  (d, c''') <- dim c''
+  putStrLn $ "c.dim = " ++ show d
+
+  -- Free c
+  free c'''
+
+  putStrLn "=== DupDeep Test Complete ==="
+
+||| Test cloneBorrow (borrow semantics)
+testCloneBorrow : IO ()
+testCloneBorrow = do
+  putStrLn "\n=== CloneBorrow Test ==="
+
+  -- Create a tensor
+  a <- ones1d 3
+  putStrLn "a = ones(3):"
+  a' <- printT a
+
+  -- Clone using borrow semantics (doesn't consume a')
+  putStrLn "Cloning a (borrow semantics)..."
+  b <- cloneBorrow a'
+  putStrLn "b (clone):"
+  b' <- printT b
+
+  -- a' should still be valid
+  putStrLn "a after clone (should still work):"
+  a'' <- printT a'
+  (d, a''') <- dim a''
+  putStrLn $ "a.dim = " ++ show d
+
+  -- Clone again to test multiple borrows
+  putStrLn "Cloning a again..."
+  c <- cloneBorrow a'''
+  putStrLn "c (second clone):"
+  c' <- printT c
+
+  -- Free all
+  free a'''
+  free b'
+  free c'
+
+  putStrLn "=== CloneBorrow Test Complete ==="
+
 main : IO ()
 main = do
   -- Basic tests
@@ -390,6 +458,10 @@ main = do
   testReductions
   testScalarOps
   testStpmScenario
+  -- Test deep clone
+  testDupDeep
+  -- Test borrow clone
+  testCloneBorrow
   -- Tier 6: Checkpoint loading
   testCheckpointLoading
   putStrLn "All tests complete!"
