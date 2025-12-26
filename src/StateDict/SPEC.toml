@@ -41,36 +41,4 @@ specs = [
   "- [REQ_SD_EXT_003] ${module_statedict} SHALL return shallow clones owned by caller"
 ]
 
-# ============================================================
-# Type Specifications (SI Parity)
-# ============================================================
-
-[[type]]
-id = "StateDict Type"
-text = "`StateDict` linear wrapper type with `MkStateDict` constructor"
-
-[[type]]
-id = "Checkpoint Loading"
-text = "File loading: `loadCheckpoint`"
-
-[[type]]
-id = "StateDict Destruction"
-text = "Resource cleanup: `freeStateDict`"
-
-[[type]]
-id = "Error Inspection"
-text = "Error checking: `hasError`, `getError`"
-
-[[type]]
-id = "StateDict Queries"
-text = "Size and content inspection: `sdSize`, `isEmpty`, `nameAt`"
-
-[[type]]
-id = "Tensor Extraction"
-text = "Individual tensor retrieval: `getTensor`, `tensorAt`"
-
-[[type]]
-id = "Batch Extraction"
-text = "Full extraction: `extractAll`, `extractLoop`"
-
 [[end]]
