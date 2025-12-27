@@ -443,3 +443,18 @@ split3 (MkTensor ptr) splitSize = do
   t2 <- tensorNarrow ptr2 0 splitSize splitSize
   t3 <- tensorNarrow ptr3 0 (splitSize * 2) splitSize
   pure (MkTensor t1, MkTensor t2, MkTensor t3)
+
+-- ============================================================
+-- Memory Layout Operations (Linear)
+-- ============================================================
+
+||| Make tensor contiguous in memory
+||| Returns a tensor with contiguous memory layout
+||| If already contiguous, returns a view of the same data
+||| If not contiguous, copies data to a new contiguous tensor
+||| Linear: Consumes input, produces new tensor
+export
+contiguous : (1 t : Tensor) -> IO Tensor
+contiguous (MkTensor ptr) = do
+  result <- tensorContiguous ptr
+  pure (MkTensor result)

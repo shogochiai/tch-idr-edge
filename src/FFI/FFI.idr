@@ -877,6 +877,14 @@ freeStateDictRaw sd = primIO (prim__stateDictFree sd)
 prim__narrow : AnyPtr -> TensorPtr -> Bits64 -> Bits64 -> Bits64 -> PrimIO ()
 
 -- ============================================================
+-- Tier 8: Memory Layout (prim bindings)
+-- ============================================================
+
+-- Make tensor contiguous in memory
+%foreign "C:atg_contiguous,libtorch_shim"
+prim__contiguous : AnyPtr -> TensorPtr -> PrimIO ()
+
+-- ============================================================
 -- Tier 7: Tensor Slicing (wrapped)
 -- ============================================================
 
@@ -891,6 +899,24 @@ tensorNarrow : TensorPtr -> Bits64 -> Bits64 -> Bits64 -> IO TensorPtr
 tensorNarrow t dim start length = do
   out <- allocOutPtr
   primIO (prim__narrow out t dim start length)
+  result <- readOutPtr out
+  freeOutPtr out
+  pure result
+
+-- ============================================================
+-- Tier 8: Memory Layout (wrapped)
+-- ============================================================
+
+||| Make tensor contiguous in memory
+||| Returns a tensor with contiguous memory layout
+||| If already contiguous, returns a view of the same data
+||| If not contiguous, copies data to a new contiguous tensor
+||| @t Input tensor
+export
+tensorContiguous : TensorPtr -> IO TensorPtr
+tensorContiguous t = do
+  out <- allocOutPtr
+  primIO (prim__contiguous out t)
   result <- readOutPtr out
   freeOutPtr out
   pure result

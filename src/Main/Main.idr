@@ -6,6 +6,10 @@ import Torch.Torch
 import FFI.FFI
 import Tensor.Tensor
 import StateDict.StateDict
+import System.File
+import Data.String
+import Data.List
+import Data.List1
 
 ||| Example: Create tensor, inspect, and free
 ||| This demonstrates the linear usage pattern:
@@ -442,6 +446,291 @@ testCloneBorrow = do
 
   putStrLn "=== CloneBorrow Test Complete ==="
 
+-- ============================================================
+-- File-based tensor loading for isolation test
+-- ============================================================
+
+-- Memory allocation
+%foreign "C:malloc,libc 6"
+prim__mallocMain : Bits64 -> PrimIO AnyPtr
+
+%foreign "C:free,libc 6"
+prim__freePtrMain : AnyPtr -> PrimIO ()
+
+-- File reading
+%foreign "C:fopen,libc 6"
+prim__fopen : String -> String -> PrimIO AnyPtr
+
+%foreign "C:fclose,libc 6"
+prim__fclose : AnyPtr -> PrimIO Int
+
+%foreign "C:fread,libc 6"
+prim__fread : AnyPtr -> Bits64 -> Bits64 -> AnyPtr -> PrimIO Bits64
+
+%foreign "C:fseek,libc 6"
+prim__fseek : AnyPtr -> Int64 -> Int -> PrimIO Int
+
+%foreign "C:ftell,libc 6"
+prim__ftell : AnyPtr -> PrimIO Int64
+
+-- Write int64 to buffer
+%foreign "C:idris_write_int64,libtorch_shim"
+prim__writeInt64 : AnyPtr -> Bits64 -> Bits64 -> PrimIO ()
+
+-- Tensor creation from data
+%foreign "C:at_tensor_of_data,libtorch_shim"
+prim__tensorOfDataMain : AnyPtr -> AnyPtr -> Bits64 -> Bits64 -> Int -> PrimIO AnyPtr
+
+-- Deep clone
+%foreign "C:at_deep_clone,libtorch_shim"
+prim__deepCloneMain : AnyPtr -> PrimIO AnyPtr
+
+||| Get file size
+getFileSizeMain : AnyPtr -> IO Bits64
+getFileSizeMain fp = do
+  _ <- primIO (prim__fseek fp 0 2)  -- SEEK_END = 2
+  size <- primIO (prim__ftell fp)
+  _ <- primIO (prim__fseek fp 0 0)  -- SEEK_SET = 0
+  pure (cast size)
+
+||| Load raw binary tensor from file (minimal implementation for testing)
+||| Returns Nothing on failure
+covering
+loadTestTensor : String -> String -> IO (Maybe Tensor)
+loadTestTensor binPath shapePath = do
+  -- Read shape file (hardcoded parsing for simplicity)
+  Right shapeContent <- readFile shapePath
+    | Left _ => pure Nothing
+
+  -- Parse shape - assume format "d0,d1" for 2D
+  let trimmed = trim shapeContent
+  let parts = split (== ',') trimmed
+  let dims : List Bits64 = mapMaybe (\s => map cast (parseInteger {a=Integer} (trim s))) (forget parts)
+
+  if null dims
+     then pure Nothing
+     else do
+       -- Open binary file
+       fp <- primIO (prim__fopen binPath "rb")
+       if prim__nullAnyPtr fp /= 0
+          then pure Nothing
+          else do
+            -- Get file size and allocate buffer
+            fileSize <- getFileSizeMain fp
+            dataBuf <- primIO (prim__mallocMain fileSize)
+            if prim__nullAnyPtr dataBuf /= 0
+               then do
+                 _ <- primIO (prim__fclose fp)
+                 pure Nothing
+               else do
+                 -- Read data
+                 _ <- primIO (prim__fread dataBuf 1 fileSize fp)
+                 _ <- primIO (prim__fclose fp)
+
+                 -- Create dims array
+                 let ndims = cast {to=Bits64} (length dims)
+                 dimsBuf <- primIO (prim__mallocMain (ndims * 8))  -- 8 bytes per int64
+                 writeDimsMain dimsBuf 0 dims
+
+                 -- Create tensor (dtype 6 = Float32, element_size = 4)
+                 tmpPtr <- primIO (prim__tensorOfDataMain dataBuf dimsBuf ndims 4 6)
+
+                 -- Free dims buffer - libtorch copies this
+                 primIO (prim__freePtrMain dimsBuf)
+
+                 if prim__nullAnyPtr tmpPtr /= 0
+                    then do
+                      primIO (prim__freePtrMain dataBuf)
+                      pure Nothing
+                    else do
+                      -- Deep clone to make tensor own its storage
+                      clonedPtr <- primIO (prim__deepCloneMain tmpPtr)
+
+                      -- Free the temporary tensor
+                      freeTensor tmpPtr
+                      -- Free the data buffer
+                      primIO (prim__freePtrMain dataBuf)
+                      pure (Just (MkTensor clonedPtr))
+  where
+    writeDimsMain : AnyPtr -> Bits64 -> List Bits64 -> IO ()
+    writeDimsMain _ _ [] = pure ()
+    writeDimsMain buf idx (d :: ds) = do
+      primIO (prim__writeInt64 buf idx d)
+      writeDimsMain buf (idx + 1) ds
+
+||| Test file-loaded tensors with matmul (isolation test for TRM bug)
+covering
+testFileLoadMatmul : IO ()
+testFileLoadMatmul = do
+  putStrLn "\n=== File Load + Matmul Test ==="
+
+  let testDir = "/Users/bob/code/tch-idr-edge/test_tensors"
+
+  -- Test 1: Load small tensors (512-dim, known to work)
+  putStrLn "Test 1: Load & matmul 513x512 (small)..."
+  mInput513 <- loadTestTensor (testDir ++ "/input_513.bin") (testDir ++ "/input_513.shape")
+  mWeight513 <- loadTestTensor (testDir ++ "/weight_513x512.bin") (testDir ++ "/weight_513x512.shape")
+  mBias512 <- loadTestTensor (testDir ++ "/bias_512.bin") (testDir ++ "/bias_512.shape")
+
+  case (mInput513, mWeight513, mBias512) of
+    (Just input, Just weight, Just bias) => do
+      putStrLn "  Loaded all tensors"
+      (s0, input') <- size input 0
+      (s1, input'') <- size input' 1
+      putStrLn $ "  input shape: [" ++ show s0 ++ ", " ++ show s1 ++ "]"
+
+      projected <- matmul input'' weight
+      putStrLn "  matmul done"
+      result <- add projected bias
+      putStrLn "  add done"
+      free result
+      putStrLn "  Test 1 PASS"
+    _ => putStrLn "  SKIP: Failed to load tensors"
+
+  -- Test 2: Load large tensors (1024-dim, the failing case)
+  putStrLn "Test 2: Load & matmul 1025x1024 (large - the TRM failing case)..."
+  mInput1025 <- loadTestTensor (testDir ++ "/input_1025.bin") (testDir ++ "/input_1025.shape")
+  mWeight1024 <- loadTestTensor (testDir ++ "/weight_1025x1024.bin") (testDir ++ "/weight_1025x1024.shape")
+  mBias1024 <- loadTestTensor (testDir ++ "/bias_1024.bin") (testDir ++ "/bias_1024.shape")
+
+  case (mInput1025, mWeight1024, mBias1024) of
+    (Just input, Just weight, Just bias) => do
+      putStrLn "  Loaded all tensors"
+      (s0, input') <- size input 0
+      (s1, input'') <- size input' 1
+      putStrLn $ "  input shape: [" ++ show s0 ++ ", " ++ show s1 ++ "]"
+
+      putStrLn "  Calling matmul..."
+      projected <- matmul input'' weight
+      putStrLn "  matmul returned, checking result..."
+
+      -- This is where TRM crashes - let's see if it happens here too
+      (pDim, projected') <- dim projected
+      putStrLn $ "  projected dim: " ++ show pDim
+
+      (ps0, projected'') <- size projected' 0
+      (ps1, projected''') <- size projected'' 1
+      putStrLn $ "  projected shape: [" ++ show ps0 ++ ", " ++ show ps1 ++ "]"
+
+      putStrLn "  Calling add..."
+      result <- add projected''' bias
+      putStrLn "  add done"
+      free result
+      putStrLn "  Test 2 PASS"
+    _ => putStrLn "  SKIP: Failed to load tensors"
+
+  -- Test 3: cat2 with file-loaded tensors then matmul
+  putStrLn "Test 3: File load -> cat2 -> matmul..."
+  mA3 <- loadTestTensor (testDir ++ "/bias_512.bin") (testDir ++ "/bias_512.shape")
+  mB3 <- loadTestTensor (testDir ++ "/bias_512.bin") (testDir ++ "/bias_512.shape")
+  mY3 <- pure (Just ()) >>= (\_ => fromListDouble [0.5] >>= (\t => view2d t 1 1 >>= (\t' => pure (Just t'))))
+  mWt3 <- loadTestTensor (testDir ++ "/weight_1025x1024.bin") (testDir ++ "/weight_1025x1024.shape")
+  mBias3 <- loadTestTensor (testDir ++ "/bias_1024.bin") (testDir ++ "/bias_1024.shape")
+
+  case (mA3, mB3, mY3, mWt3, mBias3) of
+    (Just a, Just b, Just y, Just wt, Just bias) => do
+      -- Deep clone all loaded tensors before cat2 to ensure they're fully independent
+      putStrLn "  Deep cloning input tensors..."
+      aClone <- cloneBorrow a
+      bClone <- cloneBorrow b
+      free a
+      free b
+
+      putStrLn "  cat2(aClone, bClone)..."
+      ab <- cat2 aClone bClone 1
+      putStrLn "  cat2(ab, y)..."
+      aby <- cat2 ab y 1
+      (s0, aby') <- size aby 0
+      (s1, aby'') <- size aby' 1
+      putStrLn $ "  aby shape: [" ++ show s0 ++ ", " ++ show s1 ++ "]"
+
+      -- Deep clone the concatenated result
+      putStrLn "  Deep cloning aby..."
+      abyClone <- cloneBorrow aby''
+      free aby''
+
+      putStrLn "  Calling matmul..."
+      projected <- matmul abyClone wt
+      putStrLn "  matmul returned, checking result..."
+
+      (pDim, projected') <- dim projected
+      putStrLn $ "  projected dim: " ++ show pDim
+
+      (ps0, projected'') <- size projected' 0
+      (ps1, projected''') <- size projected'' 1
+      putStrLn $ "  projected shape: [" ++ show ps0 ++ ", " ++ show ps1 ++ "]"
+
+      putStrLn "  Calling add..."
+      result <- add projected''' bias
+      putStrLn "  add done"
+      free result
+      putStrLn "  Test 3 PASS"
+    _ => putStrLn "  SKIP: Failed to load tensors (Test 3)"
+
+  putStrLn "=== File Load + Matmul Test Complete ==="
+
+||| Test large tensor operations (1024 dimensions)
+||| This tests the TRM inference failure scenario
+testLargeTensor : IO ()
+testLargeTensor = do
+  putStrLn "\n=== Large Tensor Test (1024 dim) ==="
+
+  -- Test 1: Simple 512-dim add (known to work)
+  putStrLn "Test 1: add [1,512] + [1,512]..."
+  a512 <- ones2d 1 512
+  b512 <- ones2d 1 512
+  c512 <- add a512 b512
+  putStrLn "  add 512-dim: OK"
+  free c512
+
+  -- Test 2: Simple 1024-dim add
+  putStrLn "Test 2: add [1,1024] + [1,1024]..."
+  a1024 <- ones2d 1 1024
+  b1024 <- ones2d 1 1024
+  c1024 <- add a1024 b1024
+  putStrLn "  add 1024-dim: OK"
+  free c1024
+
+  -- Test 3: cat2 to create 1024-dim, then add
+  putStrLn "Test 3: cat2 [1,512]+[1,512] -> [1,1024], then add..."
+  x1 <- ones2d 1 512
+  x2 <- ones2d 1 512
+  catted <- cat2 x1 x2 1  -- [1, 1024]
+  bias1 <- ones2d 1 1024
+  result1 <- add catted bias1
+  putStrLn "  cat2 + add: OK"
+  free result1
+
+  -- Test 4: matmul [1,1025] @ [1025,1024] -> [1,1024]
+  putStrLn "Test 4: matmul [1,1025] @ [1025,1024]..."
+  input <- ones2d 1 1025
+  weight <- ones2d 1025 1024
+  projected <- matmul input weight
+  putStrLn "  matmul: OK"
+
+  -- Test 5: add after matmul (the failing case in TRM)
+  putStrLn "Test 5: add [1,1024] + [1,1024] after matmul..."
+  bias2 <- ones2d 1 1024
+  result2 <- add projected bias2
+  putStrLn "  add after matmul: OK"
+  free result2
+
+  -- Test 6: Full pipeline: cat2 -> matmul -> add (TRM Think Linear0)
+  putStrLn "Test 6: Full pipeline cat2 -> matmul -> add..."
+  p1 <- ones2d 1 512
+  p2 <- ones2d 1 512
+  p3 <- ones2d 1 1
+  temp1 <- cat2 p1 p2 1     -- [1, 1024]
+  input2 <- cat2 temp1 p3 1 -- [1, 1025]
+  w2 <- ones2d 1025 1024
+  proj2 <- matmul input2 w2 -- [1, 1024]
+  b2 <- ones2d 1 1024
+  final <- add proj2 b2     -- [1, 1024]
+  putStrLn "  Full pipeline: OK"
+  free final
+
+  putStrLn "=== Large Tensor Test Complete ==="
+
 main : IO ()
 main = do
   -- Basic tests
@@ -464,4 +753,8 @@ main = do
   testCloneBorrow
   -- Tier 6: Checkpoint loading
   testCheckpointLoading
+  -- Large tensor test (1024 dim)
+  testLargeTensor
+  -- File load + matmul test (TRM bug isolation)
+  testFileLoadMatmul
   putStrLn "All tests complete!"
